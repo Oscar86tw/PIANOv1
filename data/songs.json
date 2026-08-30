@@ -1,0 +1,38 @@
+{
+  "version": "6.0.0",
+  "categories": [
+    "全部",
+    "課本教材",
+    "古典",
+    "練習曲"
+  ],
+  "songs": [
+    {
+      "id": "canon-demo",
+      "title": "Canon in D",
+      "composer": "J. Pachelbel",
+      "category": "古典",
+      "bpm": 60,
+      "time": "4/4",
+      "key": "D Major"
+    },
+    {
+      "id": "lesson-01",
+      "title": "Lesson Practice 01",
+      "composer": "教材",
+      "category": "課本教材",
+      "bpm": 72,
+      "time": "4/4",
+      "key": "C Major"
+    },
+    {
+      "id": "scale-01",
+      "title": "C Major Practice",
+      "composer": "練習",
+      "category": "練習曲",
+      "bpm": 80,
+      "time": "4/4",
+      "key": "C Major"
+    }
+  ]
+}

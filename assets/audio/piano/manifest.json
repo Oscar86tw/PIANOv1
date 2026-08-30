@@ -1,0 +1,8 @@
+{
+  "version": "6.0.0",
+  "format": "WAV PCM 24-bit stereo",
+  "sampleRate": 48000,
+  "range": "C3-C6",
+  "selfHosted": true,
+  "productionNote": "Demo set is synthesized. Replace files with licensed acoustic grand-piano multisamples using identical filenames for production."
+}
