@@ -5,6 +5,7 @@ PianoPractice.Metronome = class Metronome {
   constructor(transport){
     this.transport=transport;
     this.enabled=true;
+    this.volume=0.16;
     this.sources=[];
 
     transport.on("timeline",()=>this.reschedule());
@@ -37,7 +38,7 @@ PianoPractice.Metronome = class Metronome {
 
     osc.frequency.value=accent?1240:880;
     gain.gain.setValueAtTime(.0001,time);
-    gain.gain.exponentialRampToValueAtTime(.12,time+.003);
+    gain.gain.exponentialRampToValueAtTime(this.volume,time+.003);
     gain.gain.exponentialRampToValueAtTime(.0001,time+.06);
 
     osc.connect(gain).connect(ctx.destination);
@@ -45,6 +46,10 @@ PianoPractice.Metronome = class Metronome {
     osc.stop(time+.065);
 
     this.sources.push(osc);
+  }
+
+  setVolume(value){
+    this.volume=Math.max(0.02,Math.min(0.35,Number(value)||0.16));
   }
 
   reschedule(){

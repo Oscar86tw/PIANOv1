@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>PIANO LEARNING 6.2.1｜經典教材型練習</title>
+  <title>PIANO LEARNING 6.2.2｜經典教材型練習</title>
   <link rel="stylesheet" href="css/app.css">
 
 <style id="criticalBootStyle">
@@ -37,7 +37,7 @@
       <b id="songTitle">Lesson Practice 01</b>
       <small id="micTitle">正規左右手橫向練習</small>
     </div>
-    <div class="version">6.2.1</div>
+    <div class="version">6.2.2</div>
     <button class="icon error-badge" id="errorBadge" title="錯誤診斷">✓</button>
     <button class="icon" id="micBtn" aria-label="麥克風">🎤</button>
   </header>
@@ -71,7 +71,7 @@
 
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <b>PIANO LEARNING <small>6.2.1</small></b>
+    <b>PIANO LEARNING <small>6.2.2</small></b>
     <button id="closeDrawer">✕</button>
   </div>
 
@@ -140,7 +140,12 @@
       <h3>速度與準備</h3>
       <div class="row"><span>BPM</span><b><span id="bpmLabel">60</span></b></div>
       <input id="bpm" class="range" type="range" min="30" max="180" value="60">
-      <div class="row"><label for="metronome">節拍器</label><input id="metronome" type="checkbox" checked></div>
+      <div class="row">
+        <label for="metronome"><b>拍子聲音</b><br><span class="muted">練習時播放 1、2、3、4 節拍</span></label>
+        <input id="metronome" type="checkbox" checked>
+      </div>
+      <div class="row"><span>拍子音量</span><span>16%</span></div>
+      <input id="metronomeVolume" class="range" type="range" min="5" max="35" value="16">
       <div class="row">
         <label for="countBars">準備拍</label>
         <select id="countBars">
@@ -175,7 +180,7 @@
         <button class="primary" id="practiceStart">開始練習</button>
         <button id="practiceReset">重新開始</button>
       </div>
-      <p class="muted">開始先預備四拍：紅線由左側移到拍點；第 4 拍完成後紅線固定。正式播放時，樂譜位置直接由 Master Clock 的 beat 計算，不使用另一套動畫速度。</p>
+      <p class="muted">開始先預備四拍：紅線由左側移到拍點；第 4 拍完成後紅線固定。正式播放時，拍子聲、樂譜位置與琴鍵全部使用同一個 Master Clock。</p>
     </div>
 
     <div class="section">
@@ -201,7 +206,7 @@
 
 <script>
 (function(){
-  const VERSION="6.2.1";
+  const VERSION="6.2.2";
   let lastError="";
   function modal(){
     return document.getElementById("bootErrorModal");

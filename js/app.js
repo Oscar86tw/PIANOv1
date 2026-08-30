@@ -1,5 +1,5 @@
 
-const VERSION="6.2.1";
+const VERSION="6.2.2";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
@@ -73,7 +73,17 @@ document.addEventListener("DOMContentLoaded",()=>{
       transport.countInBeats=Number(e.target.value)*4;
     };
 
-    $("#metronome").onchange=e=>metronome.enabled=e.target.checked;
+    $("#metronome").onchange=e=>{
+      metronome.enabled=e.target.checked;
+      if(metronome.enabled) metronome.reschedule();
+      else metronome.cancel();
+    };
+
+    const metroVolume=$("#metronomeVolume");
+    if(metroVolume){
+      metronome.setVolume(Number(metroVolume.value)/100);
+      metroVolume.oninput=e=>metronome.setVolume(Number(e.target.value)/100);
+    }
 
     $$("[data-hand]").forEach(btn=>btn.onclick=()=>{
       $$("[data-hand]").forEach(x=>x.classList.toggle("on",x===btn));

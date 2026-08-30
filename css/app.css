@@ -303,3 +303,26 @@ html,body,.app{pointer-events:auto!important}
 @media(max-width:700px){
   .score-wrap{min-height:420px!important}
 }
+
+/* =========================================================
+   V6.2.2 split-hand practice view
+   ========================================================= */
+.score-wrap{
+  min-height:610px!important;
+}
+.playhead{
+  width:9px!important; /* 3x V6.2.1 */
+  border-radius:5px;
+  background:#d95e87!important;
+}
+.playhead::before{
+  font-size:12px!important;
+  padding:4px 7px!important;
+}
+.score-svg{
+  height:100%!important;
+  min-height:100%!important;
+}
+@media(max-width:700px){
+  .score-wrap{min-height:540px!important}
+}

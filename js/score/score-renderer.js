@@ -7,21 +7,22 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     this.NS="http://www.w3.org/2000/svg";
 
     // Large learning score, but proportions follow normal printed notation.
-    this.STAFF_SPACE=34;
+    this.STAFF_SPACE=51;          // V6.2.2: ~1.5x V6.2.1
     this.HALF_SPACE=this.STAFF_SPACE/2;
 
-    this.TREBLE_TOP=62;
-    this.SYSTEM_GAP=112; // clear gap between right and left hand staves
-    this.BASS_TOP=this.TREBLE_TOP+this.STAFF_SPACE*4+this.SYSTEM_GAP;
+    // Two independent 50% practice zones.
+    this.CANVAS_H=840;
+    this.HALF_H=this.CANVAS_H/2;
+    this.TREBLE_TOP=92;
+    this.BASS_TOP=this.HALF_H+92;
 
-    this.NOTE_RX=10.5;
-    this.NOTE_RY=6.6;
-    this.STEM=78;
-    this.BEAM_THICK=8;
+    this.NOTE_RX=15.5;
+    this.NOTE_RY=9.8;
+    this.STEM=112;
+    this.BEAM_THICK=12;
 
-    this.BEAT_PX=165;
-    this.CONTENT_START=290;
-    this.CANVAS_H=this.BASS_TOP+this.STAFF_SPACE*4+76;
+    this.BEAT_PX=225;
+    this.CONTENT_START=340;
 
     this.E4=PianoCore.Note.diatonic("E4");
     this.G2=PianoCore.Note.diatonic("G2");
@@ -77,14 +78,10 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
   }
 
   drawClef(top,clef,label){
-    const handLabel=this.el("text",{x:8,y:top-11,"font-size":"12",fill:"#777"});
-    handLabel.textContent=label;
-    this.svg.appendChild(handLabel);
-
     const c=this.el("text",{
       x:44,
       y:clef==="treble"?top+this.STAFF_SPACE*3.45:top+this.STAFF_SPACE*3.25,
-      "font-size":clef==="treble"?"91":"77",
+      "font-size":clef==="treble"?"132":"112",
       "font-family":"'Noto Music','Bravura',serif",
       fill:"#111"
     });
@@ -107,7 +104,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
         const y=this.keySignatureY(hand,letter);
         const sharp=this.el("text",{
           x,y:y+10,
-          "font-size":"31",
+          "font-size":"44",
           "font-family":"'Noto Music','Bravura',serif",
           fill:"#111"
         });
@@ -120,11 +117,11 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     x+=15;
     const topNum=this.el("text",{
       x,y:top+this.STAFF_SPACE*1.7,
-      "font-size":"39","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
+      "font-size":"56","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
     });
     const botNum=this.el("text",{
       x,y:top+this.STAFF_SPACE*3.72,
-      "font-size":"39","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
+      "font-size":"56","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
     });
     topNum.textContent=String(time[0]);
     botNum.textContent=String(time[1]);
@@ -133,6 +130,25 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
   }
 
   drawGrandStaff(width,model){
+    // Explicit upper/lower zones so the student never confuses hands.
+    this.svg.appendChild(this.el("rect",{
+      x:0,y:0,width,height:this.HALF_H,fill:"#fffdf7"
+    }));
+    this.svg.appendChild(this.el("rect",{
+      x:0,y:this.HALF_H,width,height:this.HALF_H,fill:"#fffaf2"
+    }));
+    this.svg.appendChild(this.el("line",{
+      x1:0,x2:width,y1:this.HALF_H,y2:this.HALF_H,
+      stroke:"#d8d2c7","stroke-width":"3"
+    }));
+
+    const rh=this.el("text",{x:18,y:34,"font-size":"18","font-weight":"700",fill:"#666"});
+    rh.textContent="右手";
+    const lh=this.el("text",{x:18,y:this.HALF_H+34,"font-size":"18","font-weight":"700",fill:"#666"});
+    lh.textContent="左手";
+    this.svg.appendChild(rh);
+    this.svg.appendChild(lh);
+
     this.drawStaffLines(width,this.TREBLE_TOP,model.totalBeats,model.time);
     this.drawStaffLines(width,this.BASS_TOP,model.totalBeats,model.time);
     this.drawClef(this.TREBLE_TOP,"treble","右手");
@@ -188,7 +204,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     const p=PianoCore.Note.parse(note);
     const a=this.el("text",{
       x:x-27,y:y+9,
-      "font-size":"27",
+      "font-size":"39",
       "font-family":"'Noto Music','Bravura',serif",
       fill:"#111"
     });
@@ -302,7 +318,12 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
 
     const hand=group[0].hand;
     const avgY=items.reduce((s,i)=>s+i.avg,0)/items.length;
-    const dir=this.stemDirection(avgY,hand);
+
+    // Practice display normalization:
+    // grouped eighth/sixteenth notes follow the supplied Canon reference:
+    // stems go upward and the beam stays above the noteheads.
+    // (Standard engraving may also use downward beams in other musical contexts.)
+    const dir="up";
 
     const x1=items[0].x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
     const x2=items[items.length-1].x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
