@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>PIANO LEARNING 6.2.2｜經典教材型練習</title>
+  <title>PIANO LEARNING 6.2.3｜經典教材型練習</title>
   <link rel="stylesheet" href="css/app.css">
 
 <style id="criticalBootStyle">
@@ -37,7 +37,7 @@
       <b id="songTitle">Lesson Practice 01</b>
       <small id="micTitle">正規左右手橫向練習</small>
     </div>
-    <div class="version">6.2.2</div>
+    <div class="version">6.2.3</div>
     <button class="icon error-badge" id="errorBadge" title="錯誤診斷">✓</button>
     <button class="icon" id="micBtn" aria-label="麥克風">🎤</button>
   </header>
@@ -71,7 +71,7 @@
 
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <b>PIANO LEARNING <small>6.2.2</small></b>
+    <b>PIANO LEARNING <small>6.2.3</small></b>
     <button id="closeDrawer">✕</button>
   </div>
 
@@ -85,7 +85,7 @@
 
   <section class="drawer-page on" id="page-songs">
     <div class="section">
-      <h3>歌曲・分類</h3>
+      <h3>歌曲・分類</h3><p class="muted">切換歌曲會重新載入該歌曲自己的電子樂譜、BPM 與鋼琴聲音，不再只換標題。</p>
       <div class="chips">
         <button class="chip on">全部</button>
         <button class="chip">課本教材</button>
@@ -206,7 +206,7 @@
 
 <script>
 (function(){
-  const VERSION="6.2.2";
+  const VERSION="6.2.3";
   let lastError="";
   function modal(){
     return document.getElementById("bootErrorModal");
@@ -278,6 +278,7 @@
 <script src="js/audio-engine.js"></script>
 <script src="js/core/note-utils.js"></script>
 <script src="js/score/score-model.js"></script>
+<script src="js/score/song-loader.js"></script>
 <script src="js/score/timeline-map.js"></script>
 <script src="js/score/score-renderer.js"></script>
 <script src="js/practice/transport.js"></script>

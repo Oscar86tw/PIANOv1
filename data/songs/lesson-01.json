@@ -1,0 +1,215 @@
+{
+  "id": "lesson-01",
+  "title": "Lesson Practice 01",
+  "composer": "教材",
+  "category": "課本教材",
+  "bpm": 72,
+  "time": [
+    4,
+    4
+  ],
+  "keySignature": "C",
+  "totalBeats": 16,
+  "events": [
+    {
+      "beat": 0,
+      "notes": [
+        "C5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 1,
+      "notes": [
+        "D5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 2,
+      "notes": [
+        "E5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 3,
+      "notes": [
+        "G5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 4,
+      "notes": [
+        "E5"
+      ],
+      "duration": 0.5,
+      "hand": "R"
+    },
+    {
+      "beat": 4.5,
+      "notes": [
+        "F5"
+      ],
+      "duration": 0.5,
+      "hand": "R"
+    },
+    {
+      "beat": 5,
+      "notes": [
+        "G5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 6,
+      "notes": [
+        "A5"
+      ],
+      "duration": 0.5,
+      "hand": "R"
+    },
+    {
+      "beat": 6.5,
+      "notes": [
+        "G5"
+      ],
+      "duration": 0.5,
+      "hand": "R"
+    },
+    {
+      "beat": 7,
+      "notes": [
+        "E5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 8,
+      "notes": [
+        "D5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 9,
+      "notes": [
+        "E5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 10,
+      "notes": [
+        "F5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 11,
+      "notes": [
+        "G5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 12,
+      "notes": [
+        "E5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 13,
+      "notes": [
+        "D5"
+      ],
+      "duration": 1,
+      "hand": "R"
+    },
+    {
+      "beat": 14,
+      "notes": [
+        "C5"
+      ],
+      "duration": 2,
+      "hand": "R"
+    },
+    {
+      "beat": 0,
+      "notes": [
+        "C3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 2,
+      "notes": [
+        "G3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 4,
+      "notes": [
+        "F3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 6,
+      "notes": [
+        "G3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 8,
+      "notes": [
+        "C3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 10,
+      "notes": [
+        "F3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 12,
+      "notes": [
+        "G3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    },
+    {
+      "beat": 14,
+      "notes": [
+        "C3"
+      ],
+      "duration": 2,
+      "hand": "L"
+    }
+  ]
+}

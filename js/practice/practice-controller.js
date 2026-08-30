@@ -88,6 +88,18 @@ PianoPractice.PracticeController = class PracticeController {
     this.render();
   }
 
+  setModel(model){
+    this.transport.stop();
+    this.model=model;
+    this.transport.bpm=model.bpm;
+    this.transport.totalBeats=model.totalBeats;
+    this.lastBeat=-.001;
+    this.keyboard.clear();
+    this.render();
+    this.setStatus("準備");
+    this.setProgress(0);
+  }
+
   async startOrPause(){
     try{
       if(window.PianoAudio){
