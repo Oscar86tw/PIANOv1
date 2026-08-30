@@ -1,0 +1,69 @@
+{
+  "version": "6.1.0",
+  "defaultProfile": "auto",
+  "profiles": {
+    "auto": {
+      "label": "自動（推薦）",
+      "description": "優先使用網站內 Hi‑Fi 三角鋼琴；若音源尚未安裝，自動退回 V6 示範音源。"
+    },
+    "web-hifi": {
+      "label": "Hi‑Fi 三角鋼琴",
+      "engine": "multisample",
+      "selfHosted": true,
+      "basePath": "assets/audio/piano/grand",
+      "formatPreference": [
+        "ogg",
+        "mp3"
+      ],
+      "source": "Salamander Grand Piano V3",
+      "sourcePiano": "Yamaha C5",
+      "license": "CC BY 3.0",
+      "velocityLayers": [
+        4,
+        8,
+        11,
+        15
+      ],
+      "sampleRoots": [
+        "A0",
+        "C1",
+        "Ds1",
+        "Fs1",
+        "A1",
+        "C2",
+        "Ds2",
+        "Fs2",
+        "A2",
+        "C3",
+        "Ds3",
+        "Fs3",
+        "A3",
+        "C4",
+        "Ds4",
+        "Fs4",
+        "A4",
+        "C5",
+        "Ds5",
+        "Fs5",
+        "A5",
+        "C6",
+        "Ds6",
+        "Fs6",
+        "A6",
+        "C7"
+      ],
+      "lazyLoad": true,
+      "preloadRadiusSemitones": 7,
+      "browserCache": true,
+      "estimatedInstalledSizeMB": 24
+    },
+    "demo": {
+      "label": "示範音源",
+      "engine": "exact-demo",
+      "selfHosted": true,
+      "basePath": "assets/audio/piano/demo",
+      "format": "wav",
+      "range": "C3-C6"
+    }
+  }
+}

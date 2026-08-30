@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>PIANO LEARNING V6.0.1｜經典教材型練習</title>
+  <title>PIANO LEARNING V6.1.0｜經典教材型練習</title>
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
       <b id="songTitle">Lesson Practice 01</b>
       <small id="micTitle">正規左右手橫向練習</small>
     </div>
-    <div class="version">V6.0.1</div>
+    <div class="version">V6.1.0</div>
     <button class="icon" id="micBtn" aria-label="麥克風">🎤</button>
   </header>
 
@@ -47,7 +47,7 @@
 
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <b>PIANO LEARNING <small>V6.0.1</small></b>
+    <b>PIANO LEARNING <small>V6.1.0</small></b>
     <button id="closeDrawer">✕</button>
   </div>
 
@@ -131,6 +131,14 @@
       <div class="row"><span>網站內建鋼琴音</span><input id="scoreSound" type="checkbox" checked></div>
       <div class="row"><span>音量</span></div>
       <input id="volume" class="range" type="range" min="0" max="100" value="82">
+      <div class="row"><label for="audioQuality">音質模式</label>
+        <select id="audioQuality">
+          <option value="auto" selected>自動（推薦）</option>
+          <option value="web-hifi">Hi‑Fi 三角鋼琴</option>
+          <option value="demo">示範音源</option>
+        </select>
+      </div>
+      <div class="notice" id="audioQualityStatus">音源偵測中…</div>
       <p class="muted">音源使用網站自己的 <code>assets/audio/piano/</code>；本版內附 48 kHz / 24-bit stereo WAV 示範音源。</p>
     </div>
   </section>
@@ -152,6 +160,7 @@
   </section>
 </aside>
 
+<script src="js/audio-engine.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

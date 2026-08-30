@@ -1,5 +1,5 @@
 
-const VERSION = "6.0.1";
+const VERSION = "6.1.0";
 const state = {
   bpm: 60,
   hand: "both",
@@ -348,12 +348,23 @@ async function loadNote(name){
   return buf;
 }
 async function preloadSong(){
-  await ensureAudio();
   const notes = [...new Set(SONG_EVENTS.flatMap(ev => ev.n))];
+  if(window.PianoAudio){
+    await PianoAudio.init(document.querySelector("#audioQuality")?.value || "auto");
+    await PianoAudio.preload(notes, 88);
+    return;
+  }
+  await ensureAudio();
   await Promise.all(notes.map(loadNote));
 }
 function playSample(name){
-  if(!state.scoreSound || !state.audioCtx) return;
+  if(!state.scoreSound) return;
+  if(window.PianoAudio){
+    PianoAudio.setMasterVolume(state.volume);
+    PianoAudio.play(name,{velocity:88,volume:1}).catch(()=>{});
+    return;
+  }
+  if(!state.audioCtx) return;
   const buf = state.buffers.get(name);
   if(!buf) return;
   const src = state.audioCtx.createBufferSource();
@@ -571,5 +582,18 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   $("#saveImport").onclick = saveImportedSong;
 
+  const quality = document.querySelector("#audioQuality");
+  const qualityStatus = document.querySelector("#audioQualityStatus");
+  async function refreshAudioProfile(){
+    if(!window.PianoAudio || !qualityStatus) return;
+    const active = await PianoAudio.setProfile(quality?.value || "auto");
+    qualityStatus.textContent = active === "web-hifi"
+      ? "已啟用：網站內 Hi‑Fi 三角鋼琴 multi-sample"
+      : "目前使用：V6 示範音源（Hi‑Fi 音源尚未安裝或檔案不完整）";
+  }
+  if(quality){
+    quality.onchange = refreshAudioProfile;
+    refreshAudioProfile().catch(()=>{ qualityStatus.textContent="音源初始化失敗，將使用示範音源。"; });
+  }
   window.addEventListener("resize", setInitialOffset);
 });

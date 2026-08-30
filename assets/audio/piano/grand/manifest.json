@@ -1,0 +1,15 @@
+{
+  "version": "6.1.0",
+  "installed": false,
+  "profile": "web-hifi",
+  "source": "Salamander Grand Piano V3",
+  "author": "Alexander Holm",
+  "license": "CC BY 3.0",
+  "status": "Audio files intentionally not bundled in this package yet. Install licensed samples into v4/v8/v11/v15 folders; app falls back to demo automatically.",
+  "expectedFolders": [
+    "v4",
+    "v8",
+    "v11",
+    "v15"
+  ]
+}
