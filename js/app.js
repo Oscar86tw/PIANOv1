@@ -1,5 +1,5 @@
 
-const VERSION="6.2.3";
+const VERSION="6.2.4";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
@@ -63,7 +63,11 @@ document.addEventListener("DOMContentLoaded",async()=>{
 
     $("#menuBtn").onclick=()=>openDrawer("songs"); $("#closeDrawer").onclick=closeDrawer; $("#mask").onclick=closeDrawer;
     $$(".drawer-menu button").forEach(b=>b.onclick=()=>showDrawerPage(b.dataset.page));
-    $("#playBtn").onclick=()=>practice.startOrPause(); $("#practiceStart").onclick=()=>practice.startOrPause(); $("#practiceReset").onclick=()=>practice.reset();
+    $("#playBtn").onclick=()=>practice.startOrPause();
+    $("#pauseBtn").onclick=()=>practice.pauseOnly();
+    $("#restartBtn").onclick=()=>practice.restart();
+    $("#practiceStart").onclick=()=>practice.startOrPause();
+    $("#practiceReset").onclick=()=>practice.reset();
 
     $("#bpm").oninput=e=>{ const bpm=Number(e.target.value); transport.setBpm(bpm); $("#bpmLabel").textContent=bpm; $("#bpmStatus").textContent="♩ "+bpm; };
     $("#countBars").value="1"; $("#countBars").onchange=e=>transport.countInBeats=Number(e.target.value)*4;

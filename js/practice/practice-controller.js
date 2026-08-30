@@ -137,6 +137,21 @@ PianoPractice.PracticeController = class PracticeController {
     document.querySelector("#practiceStart").textContent="暫停";
   }
 
+  pauseOnly(){
+    if(this.transport.phase==="playing" || this.transport.phase==="countin"){
+      this.transport.pause();
+      this.keyboard.clear();
+      document.querySelector("#playBtn").textContent="▶";
+      document.querySelector("#practiceStart").textContent="繼續";
+      this.setStatus("暫停");
+    }
+  }
+
+  restart(){
+    this.reset();
+    this.startOrPause();
+  }
+
   reset(){
     this.transport.stop();
     this.playhead.reset();

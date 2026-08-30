@@ -326,3 +326,34 @@ html,body,.app{pointer-events:auto!important}
 @media(max-width:700px){
   .score-wrap{min-height:540px!important}
 }
+
+/* =========================================================
+   V6.2.4 visual tuning
+   ========================================================= */
+.playhead{
+  width:18px!important; /* V6.2.3 9px -> 18px, 2x wider */
+  border-radius:8px!important;
+}
+
+.transport-btn{
+  min-width:42px;
+  height:38px;
+  padding:0 12px;
+  border:1px solid #d8d8d8;
+  border-radius:12px;
+  background:#fff;
+  color:#26313b;
+  font-weight:800;
+  cursor:pointer;
+}
+.transport-btn:hover{
+  background:#f4f4f4;
+}
+.transport-btn:active{
+  transform:translateY(1px);
+}
+.mainbtn.transport-btn{
+  background:#26313b;
+  color:#fff;
+  border-color:#26313b;
+}

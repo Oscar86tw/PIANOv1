@@ -7,19 +7,19 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     this.NS="http://www.w3.org/2000/svg";
 
     // Large learning score, but proportions follow normal printed notation.
-    this.STAFF_SPACE=51;          // V6.2.2: ~1.5x V6.2.1
+    this.STAFF_SPACE=40.8;        // V6.2.4: shrink staff 20%          // V6.2.2: ~1.5x V6.2.1
     this.HALF_SPACE=this.STAFF_SPACE/2;
 
     // Two independent 50% practice zones.
     this.CANVAS_H=840;
     this.HALF_H=this.CANVAS_H/2;
-    this.TREBLE_TOP=92;
-    this.BASS_TOP=this.HALF_H+92;
+    this.TREBLE_TOP=118;
+    this.BASS_TOP=this.HALF_H+118;
 
-    this.NOTE_RX=15.5;
-    this.NOTE_RY=9.8;
-    this.STEM=112;
-    this.BEAM_THICK=12;
+    this.NOTE_RX=12.4;
+    this.NOTE_RY=7.84;
+    this.STEM=89.6;
+    this.BEAM_THICK=9.6;
 
     this.BEAT_PX=225;
     this.CONTENT_START=340;
@@ -81,7 +81,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     const c=this.el("text",{
       x:44,
       y:clef==="treble"?top+this.STAFF_SPACE*3.45:top+this.STAFF_SPACE*3.25,
-      "font-size":clef==="treble"?"132":"112",
+      "font-size":clef==="treble"?"106":"90",
       "font-family":"'Noto Music','Bravura',serif",
       fill:"#111"
     });
@@ -104,7 +104,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
         const y=this.keySignatureY(hand,letter);
         const sharp=this.el("text",{
           x,y:y+10,
-          "font-size":"44",
+          "font-size":"35",
           "font-family":"'Noto Music','Bravura',serif",
           fill:"#111"
         });
@@ -117,11 +117,11 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     x+=15;
     const topNum=this.el("text",{
       x,y:top+this.STAFF_SPACE*1.7,
-      "font-size":"56","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
+      "font-size":"45","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
     });
     const botNum=this.el("text",{
       x,y:top+this.STAFF_SPACE*3.72,
-      "font-size":"56","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
+      "font-size":"45","font-weight":"600","font-family":"Georgia,serif",fill:"#111"
     });
     topNum.textContent=String(time[0]);
     botNum.textContent=String(time[1]);
@@ -204,7 +204,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     const p=PianoCore.Note.parse(note);
     const a=this.el("text",{
       x:x-27,y:y+9,
-      "font-size":"39",
+      "font-size":"31",
       "font-family":"'Noto Music','Bravura',serif",
       fill:"#111"
     });
