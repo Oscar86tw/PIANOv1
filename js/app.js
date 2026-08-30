@@ -1,5 +1,5 @@
 
-const VERSION = "6.1.0";
+const VERSION = "6.1.1";
 const state = {
   bpm: 60,
   hand: "both",
@@ -350,12 +350,14 @@ async function loadNote(name){
 async function preloadSong(){
   const notes = [...new Set(SONG_EVENTS.flatMap(ev => ev.n))];
   if(window.PianoAudio){
-    await PianoAudio.init(document.querySelector("#audioQuality")?.value || "auto");
-    await PianoAudio.preload(notes, 88);
+    // V6.1.1: 不再阻塞主畫面。先啟動練習，音源在背景載入。
+    await PianoAudio.init(document.querySelector("#audioQuality")?.value || "auto",{activateAudio:true});
+    PianoAudio.preload(notes,88).catch(err=>{
+      window.PianoDiagnostics?.add({kind:"audio-preload",message:err?.message||String(err),stack:err?.stack||""});
+    });
     return;
   }
   await ensureAudio();
-  await Promise.all(notes.map(loadNote));
 }
 function playSample(name){
   if(!state.scoreSound) return;
@@ -422,10 +424,17 @@ async function countIn(){
   $("#readyOverlay").classList.remove("show");
 }
 async function startPractice(){
-  await preloadSong();
   if(state.playing){
     pausePractice();
     return;
+  }
+  try{
+    await Promise.race([
+      preloadSong(),
+      new Promise(resolve=>setTimeout(resolve,900))
+    ]);
+  }catch(err){
+    window.PianoDiagnostics?.add({kind:"practice-start",message:err?.message||String(err),stack:err?.stack||""});
   }
   if(!state.started && state.currentBeat === 0) await countIn();
 
@@ -593,7 +602,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   if(quality){
     quality.onchange = refreshAudioProfile;
-    refreshAudioProfile().catch(()=>{ qualityStatus.textContent="音源初始化失敗，將使用示範音源。"; });
+    refreshAudioProfile().catch((err)=>{
+      qualityStatus.textContent="音源初始化失敗，將使用示範音源。";
+      window.PianoDiagnostics?.add({kind:"audio-profile",message:err?.message||String(err),stack:err?.stack||""});
+    });
+  }
+  const errorBadge=document.querySelector("#errorBadge");
+  if(errorBadge) errorBadge.onclick=()=>openDrawer("diagnostics");
+  if(window.PianoDiagnostics){
+    const list=document.querySelector("#diagnosticList");
+    PianoDiagnostics.subscribe(logs=>{
+      if(!list) return;
+      if(!logs.length){
+        list.innerHTML='<div class="section"><b>目前沒有錯誤紀錄 ✓</b><p class="muted">如果之後網頁出錯，這裡會自動留下診斷資料。</p></div>';
+        return;
+      }
+      list.innerHTML=logs.map(x=>`<div class="diag-item">
+        <div class="diag-head"><span class="diag-title">${x.title} · ${x.category}</span><span class="diag-time">${new Date(x.time).toLocaleString()}</span></div>
+        <code>${String(x.message).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]))}${x.source?`\n${x.source}:${x.line||0}:${x.column||0}`:""}</code>
+        <div class="diag-advice">${x.advice}</div>
+      </div>`).join("");
+    });
+    document.querySelector("#copyErrorReport")?.addEventListener("click",async()=>{
+      await PianoDiagnostics.copyReport();
+      const b=document.querySelector("#copyErrorReport"); const old=b.textContent;b.textContent="已複製 ✓";setTimeout(()=>b.textContent=old,1200);
+    });
+    document.querySelector("#clearErrorReport")?.addEventListener("click",()=>PianoDiagnostics.clear());
   }
   window.addEventListener("resize", setInitialOffset);
 });

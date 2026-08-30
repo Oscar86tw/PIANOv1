@@ -65,15 +65,15 @@ window.PianoAudio = (() => {
       return !!m.installed;
     }catch{ return false; }
   }
-  async function init(profile="auto"){
+  async function init(profile="auto", {activateAudio=false}={}){
     await loadConfig();
-    await ensureContext();
     state.profile = profile;
     if(profile==="web-hifi" || profile==="auto"){
       state.activeProfile = await probeHifi() ? "web-hifi" : "demo";
     }else{
       state.activeProfile = "demo";
     }
+    if(activateAudio) await ensureContext();
     state.initialized = true;
     document.dispatchEvent(new CustomEvent("piano-audio-ready",{detail:{profile:state.activeProfile}}));
     return state.activeProfile;
@@ -149,6 +149,7 @@ window.PianoAudio = (() => {
 
   async function preload(notes, velocity=88){
     if(!state.initialized) await init(state.profile);
+    await ensureContext();
     const uniq = [...new Set(notes)];
     const tasks = uniq.map(n => state.activeProfile==="web-hifi" ? loadHifi(n,velocity) : loadDemo(n));
     return Promise.allSettled(tasks);
@@ -160,7 +161,7 @@ window.PianoAudio = (() => {
 
   async function setProfile(profile){
     state.profile=profile;
-    return init(profile);
+    return init(profile,{activateAudio:false});
   }
 
   function info(){

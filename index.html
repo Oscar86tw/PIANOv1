@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>PIANO LEARNING V6.1.0｜經典教材型練習</title>
+  <title>PIANO LEARNING V6.1.1｜經典教材型練習</title>
   <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -14,7 +14,8 @@
       <b id="songTitle">Lesson Practice 01</b>
       <small id="micTitle">正規左右手橫向練習</small>
     </div>
-    <div class="version">V6.1.0</div>
+    <div class="version">V6.1.1</div>
+    <button class="icon error-badge" id="errorBadge" title="錯誤診斷">✓</button>
     <button class="icon" id="micBtn" aria-label="麥克風">🎤</button>
   </header>
 
@@ -47,7 +48,7 @@
 
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <b>PIANO LEARNING <small>V6.1.0</small></b>
+    <b>PIANO LEARNING <small>V6.1.1</small></b>
     <button id="closeDrawer">✕</button>
   </div>
 
@@ -56,6 +57,7 @@
     <button data-page="import">拍照歌譜</button>
     <button data-page="settings">參數設定</button>
     <button data-page="practice">練習</button>
+    <button data-page="diagnostics" class="diag-menu">錯誤診斷</button>
   </div>
 
   <section class="drawer-page on" id="page-songs">
@@ -158,8 +160,22 @@
       <p class="muted">已把五線譜放大、減少上下留白，並把音符重新放回正規譜表位置，避免浮在五線譜外面。</p>
     </div>
   </section>
+
+  <section class="drawer-page" id="page-diagnostics">
+    <div class="section">
+      <h3>錯誤診斷</h3>
+      <p class="muted">網站會自動記錄 JavaScript、音源、網路、麥克風與資源載入錯誤。發生問題時，把「複製錯誤報告」內容交給 AI，就能看到版本、時間、檔案、行號與建議方向。</p>
+      <div class="practice-grid">
+        <button class="primary" id="copyErrorReport">複製錯誤報告</button>
+        <button id="clearErrorReport">清除紀錄</button>
+      </div>
+    </div>
+    <div id="diagnosticList"></div>
+  </section>
+
 </aside>
 
+<script src="js/diagnostics.js"></script>
 <script src="js/audio-engine.js"></script>
 <script src="js/app.js"></script>
 </body>
