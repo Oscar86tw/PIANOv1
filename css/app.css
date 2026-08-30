@@ -385,3 +385,20 @@ html,body,.app{pointer-events:auto!important}
 .score-wrap{
   overflow:hidden!important;
 }
+
+/* =========================================================
+   V6.2.8 whole-score fixed view
+   ========================================================= */
+.score-track{
+  width:100%!important;
+  height:100%!important;
+  transform:none!important;
+}
+.score-svg{
+  width:100%!important;
+  height:100%!important;
+}
+.playhead{
+  transition:none!important; /* beat position is already updated every animation frame */
+  will-change:left;
+}

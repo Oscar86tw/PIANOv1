@@ -36,7 +36,9 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     return n;
   }
 
-  xForBeat(beat){ return this.CONTENT_START+beat*this.BEAT_PX; }
+  xForBeat(beat){
+    return this.CONTENT_START + beat * (this.ACTIVE_BEAT_PX || this.BEAT_PX);
+  }
   staffTop(hand){ return hand==="R"?this.TREBLE_TOP:this.BASS_TOP; }
   staffBottom(hand){ return this.staffTop(hand)+this.STAFF_SPACE*4; }
   noteY(note,hand){ return PianoCore.StaffGeometry.centerY(note,hand); }
@@ -291,10 +293,23 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
 
   render(model,handMode="both"){
     this.svg.innerHTML="";
-    const width=this.CONTENT_START+model.totalBeats*this.BEAT_PX+300;
+
+    // Whole-song mode: the full current score stays visible.
+    // Horizontal note spacing is calculated once from the available practice width.
+    const wrap=this.svg.closest(".score-wrap");
+    const available=Math.max(900,wrap?.clientWidth||1200);
+    const width=available;
+    const endMargin=46;
+
+    this.CONTENT_START=Math.max(210,Math.round(width*0.16));
+    this.ACTIVE_BEAT_PX=Math.max(34,(width-this.CONTENT_START-endMargin)/Math.max(1,model.totalBeats));
+
     this.svg.setAttribute("viewBox",`0 0 ${width} ${this.CANVAS_H}`);
-    this.svg.style.width=width+"px";
-    this.svg.parentElement.style.width=width+"px";
+    this.svg.setAttribute("preserveAspectRatio","none");
+    this.svg.style.width="100%";
+    this.svg.style.height="100%";
+    this.svg.parentElement.style.width="100%";
+    this.svg.parentElement.style.height="100%";
 
     this.drawGrandStaff(width,model);
 
@@ -312,6 +327,12 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     });
 
     const timeline=this.buildTimeline(model);
-    return {width,timeline,contentStart:this.CONTENT_START,canvasHeight:this.CANVAS_H};
+    return {
+      width,
+      timeline,
+      contentStart:this.CONTENT_START,
+      endX:this.xForBeat(model.totalBeats),
+      canvasHeight:this.CANVAS_H
+    };
   }
 };

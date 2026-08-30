@@ -2,12 +2,11 @@
 window.PianoPractice = window.PianoPractice || {};
 
 PianoPractice.PracticeController = class PracticeController {
-  constructor({model,renderer,transport,playhead,pager,metronome,keyboard}){
+  constructor({model,renderer,transport,playhead,metronome,keyboard}){
     this.model=model;
     this.renderer=renderer;
     this.transport=transport;
     this.playhead=playhead;
-    this.pager=pager;
     this.metronome=metronome;
     this.keyboard=keyboard;
     this.handMode="both";
@@ -21,13 +20,9 @@ PianoPractice.PracticeController = class PracticeController {
         this.playhead.reset();
         this.keyboard.clear();
         this.lastBeat=-.001;
-        this.pager.systemIndex=0;
-        this.pager.renderSystem();
       }
       if(phase==="countin"){
         this.lastBeat=-.001;
-        this.pager.systemIndex=0;
-        this.pager.renderSystem();
       }
       if(phase==="playing"){
         this.lastBeat=-.001;
@@ -47,9 +42,11 @@ PianoPractice.PracticeController = class PracticeController {
       }
 
       if(t.phase==="playing"){
-        this.pager.ensureSystemForBeat(t.beat);
-        const systemProgress=this.pager.progressInSystem(t.beat);
-        this.playhead.updatePlaying(systemProgress);
+        // IMPORTANT:
+        // Red line position is a direct function of the exact musical beat.
+        // No pager, no reset, no independent CSS animation, no acceleration.
+        const progress=this.model.totalBeats>0 ? t.beat/this.model.totalBeats : 0;
+        this.playhead.updatePlaying(progress);
 
         const eventsNow=this.model.eventsAtBeat(t.beat,.035,this.handMode);
         this.keyboard.showNotes(eventsNow.flatMap(e=>e.notes));
@@ -69,8 +66,7 @@ PianoPractice.PracticeController = class PracticeController {
 
         this.lastBeat=t.beat;
         const measure=Math.floor(t.beat/4)+1;
-        const system=this.pager.systemForBeat(t.beat)+1;
-        this.setStatus(`第 ${measure} 小節 · 第 ${system}/${this.pager.totalSystems()} 排`);
+        this.setStatus(`第 ${measure} 小節`);
         this.setProgress(Math.round(t.progress*100));
       }
     });
@@ -96,13 +92,13 @@ PianoPractice.PracticeController = class PracticeController {
   }
 
   render(){
-    this.pager.setModel(this.model,this.handMode);
-    requestAnimationFrame(()=>this.playhead.reset());
+    const result=this.renderer.render(this.model,this.handMode);
+    this.playhead.configureFromLayout(result);
   }
 
   setHand(mode){
     this.handMode=mode;
-    this.pager.setHand(mode);
+    this.render();
   }
 
   setModel(model){
@@ -112,8 +108,7 @@ PianoPractice.PracticeController = class PracticeController {
     this.transport.totalBeats=model.totalBeats;
     this.lastBeat=-.001;
     this.keyboard.clear();
-    this.pager.setModel(model,this.handMode);
-    this.playhead.reset();
+    this.render();
     this.setStatus("準備");
     this.setProgress(0);
   }
@@ -154,8 +149,6 @@ PianoPractice.PracticeController = class PracticeController {
 
     if(this.transport.phase==="complete") this.transport.stop();
 
-    this.pager.systemIndex=0;
-    this.pager.renderSystem();
     this.playhead.reset();
     await this.transport.start();
     document.querySelector("#playBtn").textContent="Ⅱ";
@@ -179,8 +172,6 @@ PianoPractice.PracticeController = class PracticeController {
 
   reset(){
     this.transport.stop();
-    this.pager.systemIndex=0;
-    this.pager.renderSystem();
     this.playhead.reset();
     this.keyboard.clear();
     document.querySelector("#playBtn").textContent="▶";
