@@ -28,6 +28,7 @@ PianoScore.SongLoader = class SongLoader {
     model.sheetSourceUrl=data.sheetSourceUrl||"";
     model.sheetPages=data.sheetPages||0;
     model.sheetVerified=Boolean(data.sheetVerified);
+    model.sheetSystems=Array.isArray(data.sheetSystems)?data.sheetSystems:[];
     this.cache.set(id,model);
     return model;
   }

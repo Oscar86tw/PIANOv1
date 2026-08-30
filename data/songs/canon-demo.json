@@ -9,7 +9,7 @@
     4
   ],
   "keySignature": "D",
-  "totalBeats": 16,
+  "totalBeats": 192,
   "events": [
     {
       "beat": 0,
@@ -451,5 +451,95 @@
   "sheetImageUrl": "https://truongca.com/images/sheet/nhac/38031-canon-in-d-sheet-piano-easy-fingering/38031-canon-in-d-sheet-piano-easy-fingering-0.jpg",
   "sheetSourceUrl": "https://truongca.com/nhac/38031-canon-in-d-sheet-piano-easy-fingering",
   "sheetPages": 1,
-  "sheetVerified": true
+  "sheetVerified": true,
+  "sheetSystems": [
+    {
+      "system": 1,
+      "startMeasure": 1,
+      "endMeasure": 6,
+      "startBeat": 0,
+      "endBeat": 24,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.135,
+      "y2": 0.25
+    },
+    {
+      "system": 2,
+      "startMeasure": 7,
+      "endMeasure": 12,
+      "startBeat": 24,
+      "endBeat": 48,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.255,
+      "y2": 0.365
+    },
+    {
+      "system": 3,
+      "startMeasure": 13,
+      "endMeasure": 20,
+      "startBeat": 48,
+      "endBeat": 80,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.375,
+      "y2": 0.48
+    },
+    {
+      "system": 4,
+      "startMeasure": 21,
+      "endMeasure": 26,
+      "startBeat": 80,
+      "endBeat": 104,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.495,
+      "y2": 0.595
+    },
+    {
+      "system": 5,
+      "startMeasure": 27,
+      "endMeasure": 34,
+      "startBeat": 104,
+      "endBeat": 136,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.61,
+      "y2": 0.715
+    },
+    {
+      "system": 6,
+      "startMeasure": 35,
+      "endMeasure": 39,
+      "startBeat": 136,
+      "endBeat": 156,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.725,
+      "y2": 0.815
+    },
+    {
+      "system": 7,
+      "startMeasure": 40,
+      "endMeasure": 44,
+      "startBeat": 156,
+      "endBeat": 176,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.825,
+      "y2": 0.9
+    },
+    {
+      "system": 8,
+      "startMeasure": 45,
+      "endMeasure": 48,
+      "startBeat": 176,
+      "endBeat": 192,
+      "x1": 0.075,
+      "x2": 0.935,
+      "y1": 0.905,
+      "y2": 0.97
+    }
+  ]
 }

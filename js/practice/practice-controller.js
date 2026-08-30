@@ -46,7 +46,14 @@ PianoPractice.PracticeController = class PracticeController {
         // Red line position is a direct function of the exact musical beat.
         // No pager, no reset, no independent CSS animation, no acceleration.
         const progress=this.model.totalBeats>0 ? t.beat/this.model.totalBeats : 0;
-        this.playhead.updatePlaying(progress);
+
+        if(this.model.displayMode==="full-sheet-image" && this.model.sheetSystems?.length){
+          // Follow the printed score row-by-row:
+          // first system left->right, then jump to next system start.
+          this.playhead.updateFullSheet(t.beat);
+        }else{
+          this.playhead.updatePlaying(progress);
+        }
 
         const eventsNow=this.model.eventsAtBeat(t.beat,.035,this.handMode);
         this.keyboard.showNotes(eventsNow.flatMap(e=>e.notes));
@@ -73,7 +80,11 @@ PianoPractice.PracticeController = class PracticeController {
 
     this.transport.on("complete",()=>{
       this.keyboard.clear();
-      this.playhead.updatePlaying(1);
+      if(this.model.displayMode==="full-sheet-image" && this.model.sheetSystems?.length){
+        this.playhead.updateFullSheet(this.model.totalBeats-.0001);
+      }else{
+        this.playhead.updatePlaying(1);
+      }
       this.setStatus("完成");
       this.setProgress(100);
       document.querySelector("#playBtn").textContent="▶";
@@ -97,11 +108,17 @@ PianoPractice.PracticeController = class PracticeController {
     // Full-sheet image mode uses the complete page as the visible score.
     // Keep digital render in memory for note/audio events, but hide it visually.
     if(this.model.displayMode==="full-sheet-image"){
-      this.playhead.configureFromLayout({
-        contentStart: result.width*0.09,
-        endX: result.width*0.93,
-        width: result.width
-      });
+      const image=document.querySelector("#fullSheetImage");
+
+      const configure=()=>{
+        this.playhead.configureFullSheet(image,this.model.sheetSystems||[]);
+      };
+
+      if(image?.complete && image.naturalWidth){
+        requestAnimationFrame(configure);
+      }else if(image){
+        image.addEventListener("load",()=>requestAnimationFrame(configure),{once:true});
+      }
     }else{
       this.playhead.configureFromLayout(result);
     }
