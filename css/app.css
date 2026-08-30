@@ -250,3 +250,35 @@ html,body,.app{pointer-events:auto!important}
   .score-wrap{min-height:460px!important}
   .keyboard{height:150px!important;min-height:135px!important}
 }
+
+/* =========================================================
+   V6.2.0 Practice Engine Refactor
+   ========================================================= */
+.score-wrap{
+  min-height:500px!important;
+  background:#fffdf7!important;
+}
+.score-svg{
+  height:100%!important;
+  min-height:100%!important;
+}
+.playhead{
+  top:8px!important;
+  bottom:8px!important;
+  width:3px!important;
+  transition:left .04s linear;
+}
+.playhead[data-phase="ready"]::before{content:"預備"!important}
+.playhead[data-phase="countin"]::before{content:"預備"!important}
+.playhead[data-phase="playing"]::before{content:"拍點"!important}
+
+.controls{
+  height:54px!important;
+}
+.keyboard{
+  height:160px!important;
+}
+@media(max-width:700px){
+  .score-wrap{min-height:440px!important}
+  .keyboard{height:145px!important}
+}
