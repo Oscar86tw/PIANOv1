@@ -6,22 +6,35 @@ PianoPractice.ScoreScroller = class ScoreScroller {
     this.track=track;
     this.renderer=renderer;
     this.playhead=playhead;
-    this.baseX=0;
+    this.timeline=null;
+  }
+
+  setTimeline(timeline){
+    this.timeline=timeline;
+    this.reset();
   }
 
   reset(){
-    // At count-in start, beat 0 / first note is already waiting at the final judgment position.
-    // The red line starts left and moves toward it during the four preparation beats.
-    this.baseX=this.playhead.targetX()-this.renderer.CONTENT_START;
-    this.track.style.transform=`translateX(${this.baseX}px)`;
+    if(!this.timeline) return;
+
+    // First note is waiting at the final judgment point.
+    const x0=this.timeline.xAtBeat(0);
+    const tx=this.playhead.targetX()-x0;
+    this.track.style.transform=`translate3d(${tx}px,0,0)`;
   }
 
   update({phase,beat=0}){
-    if(phase==="countin"||phase==="idle"){
-      this.track.style.transform=`translateX(${this.baseX}px)`;
+    if(!this.timeline) return;
+
+    if(phase==="idle"||phase==="countin"){
+      this.reset();
       return;
     }
-    const x=this.baseX-beat*this.renderer.BEAT_PX;
-    this.track.style.transform=`translateX(${x}px)`;
+
+    const currentX=this.timeline.xAtBeat(beat);
+    const tx=this.playhead.targetX()-currentX;
+
+    // Score position is a direct function of musical beat, not an independent animation.
+    this.track.style.transform=`translate3d(${tx}px,0,0)`;
   }
 };

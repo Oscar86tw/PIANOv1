@@ -282,3 +282,24 @@ html,body,.app{pointer-events:auto!important}
   .score-wrap{min-height:440px!important}
   .keyboard{height:145px!important}
 }
+
+/* =========================================================
+   V6.2.1 notation / synchronization adjustments
+   ========================================================= */
+.score-wrap{
+  min-height:470px!important;
+}
+.score-svg{
+  shape-rendering:geometricPrecision;
+  text-rendering:geometricPrecision;
+}
+.score-track{
+  will-change:transform;
+  backface-visibility:hidden;
+}
+.playhead{
+  transition:none!important;
+}
+@media(max-width:700px){
+  .score-wrap{min-height:420px!important}
+}

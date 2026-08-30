@@ -2,10 +2,11 @@
 window.PianoScore = window.PianoScore || {};
 
 PianoScore.ScoreModel = class ScoreModel {
-  constructor({title="Lesson Practice 01", bpm=60, time=[4,4], totalBeats=16, events=[]}={}){
+  constructor({title="Lesson Practice 01", bpm=60, time=[4,4], keySignature="D", totalBeats=16, events=[]}={}){
     this.title=title;
     this.bpm=bpm;
     this.time=time;
+    this.keySignature=keySignature;
     this.totalBeats=totalBeats;
     this.events=events
       .map((e,i)=>({...e,id:e.id||`ev-${i}`}))
@@ -43,6 +44,7 @@ PianoScore.ScoreModel = class ScoreModel {
       title:"Lesson Practice 01",
       bpm:60,
       time:[4,4],
+      keySignature:"D",
       totalBeats:16,
       events:[
         E(0,"D5",1,"R"), E(1,"E5",1,"R"),

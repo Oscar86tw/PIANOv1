@@ -36,7 +36,7 @@ PianoPractice.PracticeController = class PracticeController {
       this.scroller.update(t);
 
       if(t.phase==="countin"){
-        const next=Math.min(4,Math.floor(t.countBeat)+1);
+        const next=Math.min(4,Math.max(1,Math.floor(t.countBeat)+1));
         this.setStatus(`預備 ${next} / 4`);
         this.keyboard.clear();
         return;
@@ -75,7 +75,8 @@ PianoPractice.PracticeController = class PracticeController {
   setProgress(v){ const e=document.querySelector("#progress"); if(e)e.textContent=`${v}%`; }
 
   render(){
-    this.renderer.render(this.model,this.handMode);
+    const result=this.renderer.render(this.model,this.handMode);
+    this.scroller.setTimeline(result.timeline);
     requestAnimationFrame(()=>{
       this.scroller.reset();
       this.playhead.reset();
@@ -97,6 +98,7 @@ PianoPractice.PracticeController = class PracticeController {
         ]);
         PianoAudio.preload(notes,88).catch(()=>{});
       }
+      await this.transport.prepare();
       await this.metronome.ensureAudio();
     }catch(err){
       window.PianoDiagnostics?.add({kind:"practice-start",message:err?.message||String(err),stack:err?.stack||""});

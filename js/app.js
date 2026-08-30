@@ -1,5 +1,5 @@
 
-const VERSION="6.2.0";
+const VERSION="6.2.1";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
