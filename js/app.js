@@ -1,5 +1,5 @@
 
-const VERSION="6.2.5";
+const VERSION="6.2.6";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
@@ -72,11 +72,33 @@ document.addEventListener("DOMContentLoaded",async()=>{
     $("#bpm").oninput=e=>{ const bpm=Number(e.target.value); transport.setBpm(bpm); $("#bpmLabel").textContent=bpm; $("#bpmStatus").textContent="♩ "+bpm; };
     $("#countBars").value="1"; $("#countBars").onchange=e=>transport.countInBeats=Number(e.target.value)*4;
     $("#metronome").onchange=e=>{ metronome.enabled=e.target.checked; if(metronome.enabled) metronome.reschedule(); else metronome.cancel(); };
-    const metroVolume=$("#metronomeVolume"); if(metroVolume){ metronome.setVolume(Number(metroVolume.value)/100); metroVolume.oninput=e=>metronome.setVolume(Number(e.target.value)/100); }
+    const metroVolume=$("#metronomeVolume");
+    const metroVolumeValue=$("#metronomeVolumeValue");
+    if(metroVolume){
+      const updateMetroVolume=()=>{
+        const value=Number(metroVolume.value);
+        metronome.setVolume(value/100);
+        if(metroVolumeValue) metroVolumeValue.textContent=value+"%";
+      };
+      metroVolume.oninput=updateMetroVolume;
+      metroVolume.onchange=updateMetroVolume;
+      updateMetroVolume();
+    }
 
     $$("[data-hand]").forEach(btn=>btn.onclick=()=>{ $$("[data-hand]").forEach(x=>x.classList.toggle("on",x===btn)); practice.setHand(btn.dataset.hand); });
     $("#scoreSound").onchange=e=>{ if(!e.target.checked&&window.PianoAudio) PianoAudio.setMasterVolume(0); else if(window.PianoAudio) PianoAudio.setMasterVolume(Number($("#volume").value)/100); };
-    $("#volume").oninput=e=>window.PianoAudio?.setMasterVolume(Number(e.target.value)/100);
+    const pianoVolume=$("#volume");
+    const pianoVolumeValue=$("#pianoVolumeValue");
+    if(pianoVolume){
+      const updatePianoVolume=()=>{
+        const value=Number(pianoVolume.value);
+        window.PianoAudio?.setMasterVolume(value/100);
+        if(pianoVolumeValue) pianoVolumeValue.textContent=value+"%";
+      };
+      pianoVolume.oninput=updatePianoVolume;
+      pianoVolume.onchange=updatePianoVolume;
+      updatePianoVolume();
+    }
 
     const quality=$("#audioQuality"), qualityStatus=$("#audioQualityStatus");
     async function refreshQuality(){ if(!window.PianoAudio||!qualityStatus)return; const active=await PianoAudio.setProfile(quality?.value||"auto"); qualityStatus.textContent=active==="web-hifi"?"已啟用：網站內 Hi‑Fi 三角鋼琴":"目前使用：網站內示範鋼琴音源"; }

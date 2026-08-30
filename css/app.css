@@ -357,3 +357,16 @@ html,body,.app{pointer-events:auto!important}
   color:#fff;
   border-color:#26313b;
 }
+
+/* =========================================================
+   V6.2.6 reference-practice visual alignment
+   ========================================================= */
+.playhead{
+  opacity:.5!important;
+}
+.score-wrap{
+  min-height:540px!important;
+}
+.score-svg{
+  height:100%!important;
+}
