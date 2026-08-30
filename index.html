@@ -1,32 +1,42 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>PIANO LEARNING V6.0.0｜經典教材型練習</title>
-<link rel="stylesheet" href="css/app.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>PIANO LEARNING V6.0.1｜經典教材型練習</title>
+  <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <button class="icon" id="menuBtn" aria-label="功能抽屜">☰</button>
-    <div class="title"><b id="songTitle">Canon in D</b><small>正規左右手橫向練習</small></div>
-    <div class="version">V6.0.0</div>
-    <button class="icon" id="micStatus" aria-label="麥克風">🎤</button>
+    <button class="icon" id="menuBtn" aria-label="打開抽屜">☰</button>
+    <div class="title">
+      <b id="songTitle">Lesson Practice 01</b>
+      <small id="micTitle">正規左右手橫向練習</small>
+    </div>
+    <div class="version">V6.0.1</div>
+    <button class="icon" id="micBtn" aria-label="麥克風">🎤</button>
   </header>
 
   <main class="practice">
     <section class="score-wrap" id="scoreWrap">
-      <div class="score-track" id="scoreTrack"><svg id="scoreSvg" class="score-svg" aria-label="正規鋼琴大譜表"></svg></div>
+      <div class="score-track" id="scoreTrack">
+        <svg id="scoreSvg" class="score-svg" aria-label="正規鋼琴五線譜"></svg>
+      </div>
       <div class="playhead" aria-label="演奏判定線"></div>
-      <div class="ready-overlay" id="readyOverlay"><div class="ready-box"><div class="ready-num" id="readyNum">1</div><small>準備拍</small></div></div>
+      <div class="ready-overlay" id="readyOverlay">
+        <div class="ready-box">
+          <div class="ready-num" id="readyNum">1</div>
+          <small>準備拍</small>
+        </div>
+      </div>
     </section>
 
-    <div class="statusbar">
-      <span class="status-pill" id="beatStatus">準備</span>
+    <div class="controls">
+      <span class="pill" id="beatStatus">準備</span>
       <button class="mainbtn" id="playBtn">▶</button>
-      <span class="status-pill" id="bpmStatus">♩ 60</span>
-      <span class="status-pill" id="progress">0%</span>
+      <span class="pill" id="bpmStatus">♩ 60</span>
+      <span class="pill" id="progress">0%</span>
     </div>
 
     <section class="keyboard" id="keyboard" aria-label="鋼琴鍵盤"></section>
@@ -34,8 +44,13 @@
 </div>
 
 <div class="drawer-mask" id="mask"></div>
+
 <aside class="drawer" id="drawer">
-  <div class="drawer-head"><b>PIANO LEARNING <small>V6.0.0</small></b><button id="closeDrawer">✕</button></div>
+  <div class="drawer-head">
+    <b>PIANO LEARNING <small>V6.0.1</small></b>
+    <button id="closeDrawer">✕</button>
+  </div>
+
   <div class="drawer-menu">
     <button data-page="songs" class="on">歌曲・分類</button>
     <button data-page="import">拍照歌譜</button>
@@ -44,7 +59,15 @@
   </div>
 
   <section class="drawer-page on" id="page-songs">
-    <div class="section"><h3>歌曲・分類</h3><div class="chips"><button class="chip on">全部</button><button class="chip">課本教材</button><button class="chip">古典</button><button class="chip">練習曲</button></div></div>
+    <div class="section">
+      <h3>歌曲・分類</h3>
+      <div class="chips">
+        <button class="chip on">全部</button>
+        <button class="chip">課本教材</button>
+        <button class="chip">古典</button>
+        <button class="chip">練習曲</button>
+      </div>
+    </div>
     <div id="songList"></div>
   </section>
 
@@ -52,47 +75,79 @@
     <div class="section">
       <h3>拍照歌譜 → 電子譜</h3>
       <div class="upload">
-        <b>拍課本或選擇樂譜圖片</b>
-        <p class="muted">手機可直接叫出相機。</p>
+        <b>拍攝課本或選擇樂譜圖片</b>
+        <p class="muted">手機可直接開相機拍攝。</p>
         <input id="photoInput" type="file" accept="image/*" capture="environment">
         <img id="photoPreview" alt="樂譜照片預覽">
       </div>
-      <div class="field"><label>歌曲名稱</label><input id="importTitle" placeholder="例如：老師課本第 12 首"></div>
-      <div class="field"><label>分類</label><select id="importCategory"><option>課本教材</option><option>古典</option><option>練習曲</option></select></div>
-      <button class="action" id="saveImport">轉成電子譜並存入曲庫</button>
-      <p class="notice" id="importMsg">本版先完成「拍照／上傳 → 網站內存檔 → 電子譜辨識接口」。真正 OMR 轉 MusicXML 會在後續接入，避免用假辨識騙學生。</p>
+
+      <div class="field">
+        <label>歌曲名稱</label>
+        <input id="importTitle" placeholder="例如：教材第 12 首">
+      </div>
+
+      <div class="field">
+        <label>分類</label>
+        <select id="importCategory">
+          <option>課本教材</option>
+          <option>古典</option>
+          <option>練習曲</option>
+        </select>
+      </div>
+
+      <button class="action" id="saveImport">存入網站曲庫</button>
+      <div class="notice" id="importMsg">本版先強化練習介面的正規五線譜顯示。拍照上傳、網站內存檔與後續 OMR → MusicXML 電子譜接口已保留。</div>
     </div>
   </section>
 
   <section class="drawer-page" id="page-settings">
     <div class="section">
       <h3>五線譜顯示</h3>
-      <div class="chips"><button class="chip" data-hand="right">右手</button><button class="chip" data-hand="left">左手</button><button class="chip on" data-hand="both">雙手</button></div>
+      <div class="chips">
+        <button class="chip" data-hand="right">右手</button>
+        <button class="chip" data-hand="left">左手</button>
+        <button class="chip on" data-hand="both">雙手</button>
+      </div>
+      <p class="muted">練單手時，只顯示單一譜表並放大。</p>
     </div>
+
     <div class="section">
       <h3>速度與準備</h3>
       <div class="row"><span>BPM</span><b><span id="bpmLabel">60</span></b></div>
-      <input class="range" id="bpm" type="range" min="30" max="180" value="60">
+      <input id="bpm" class="range" type="range" min="30" max="180" value="60">
       <div class="row"><label for="metronome">節拍器</label><input id="metronome" type="checkbox" checked></div>
-      <div class="row"><label for="countBars">準備拍</label><select id="countBars"><option value="0">關閉</option><option value="1" selected>1 小節</option><option value="2">2 小節</option></select></div>
+      <div class="row">
+        <label for="countBars">準備拍</label>
+        <select id="countBars">
+          <option value="0">關閉</option>
+          <option value="1" selected>1 小節</option>
+          <option value="2">2 小節</option>
+        </select>
+      </div>
     </div>
+
     <div class="section">
       <h3>樂譜鋼琴聲音</h3>
       <div class="row"><span>網站內建鋼琴音</span><input id="scoreSound" type="checkbox" checked></div>
-      <div class="row"><span>音量</span></div><input class="range" id="volume" type="range" min="0" max="100" value="82">
-      <p class="muted">V6.0.0 使用網站自己的 `assets/audio/piano/`，不串外部鋼琴音源。內附 48 kHz / 24-bit stereo WAV 示範取樣。</p>
+      <div class="row"><span>音量</span></div>
+      <input id="volume" class="range" type="range" min="0" max="100" value="82">
+      <p class="muted">音源使用網站自己的 <code>assets/audio/piano/</code>；本版內附 48 kHz / 24-bit stereo WAV 示範音源。</p>
     </div>
   </section>
 
   <section class="drawer-page" id="page-practice">
     <div class="section">
-      <h3>練習控制</h3>
-      <div class="practice-big"><button class="primary" id="practiceStart">開始練習</button><button id="practiceReset">重新開始</button></div>
-      <p class="muted">開始前依設定先跑準備拍；開始後樂譜依 BPM 與音值由右往左移動。音符抵達標準線時，下方對應鋼琴鍵同步亮起。</p>
+      <h3>練習</h3>
+      <div class="practice-grid">
+        <button class="primary" id="practiceStart">開始練習</button>
+        <button id="practiceReset">重新開始</button>
+      </div>
+      <p class="muted">樂譜依 BPM 與音值從右往左移動；音符碰到拍點線時，下方對應鋼琴鍵同步高亮。</p>
     </div>
+
     <div class="section">
-      <h3>本版同步規則</h3>
-      <p class="muted">BPM → 節拍器 → 樂譜位置 → 標準線 → 鋼琴鍵高亮共用同一個時間基準。</p>
+      <h3>本版修正重點</h3>
+      <p class="muted">已把五線譜放大、減少上下留白，並把音符重新放回正規譜表位置，避免浮在五線譜外面。</p>
     </div>
   </section>
 </aside>
