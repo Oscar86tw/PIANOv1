@@ -1,5 +1,5 @@
 
-const VERSION = "6.1.3";
+const VERSION = "6.1.4";
 const state = {
   bpm: 60,
   hand: "both",
@@ -53,22 +53,55 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const NS = "http://www.w3.org/2000/svg";
 const HALF_SPACE = 40;        // one diatonic step = half staff-space
-const STAFF_GAP = 80;         // V6.1.3: another ~2x visual increase
+const STAFF_GAP = 80;         // V6.1.4: another ~2x visual increase
 const TREBLE_TOP = 70;
 const BASS_TOP = 500;
 
 const letterIndex = {C:0,D:1,E:2,F:3,G:4,A:5,B:6};
-const nameToMidi = n => {
-  const m = /^([A-G])([#b]?)(\d)$/.exec(n);
-  if(!m) return 60;
-  const pitch = {C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]] + (m[2]==="#"?1:m[2]==="b"?-1:0);
-  return (Number(m[3])+1)*12 + pitch;
+
+/*
+ * V6.1.4 統一音名解析
+ * 支援：
+ *   C4 / F5
+ *   F#5 / C#5
+ *   Fs5 / Cs5   ← 網站音檔使用 s 代表 sharp
+ *   Bb3
+ */
+function parseNoteName(note){
+  const raw = String(note ?? "").trim();
+  const m = /^([A-G])([#sb]?)(\d)$/.exec(raw);
+  if(!m){
+    const err = new Error(`無法辨識樂譜音名：${raw || "(空白)"}`);
+    err.code = "INVALID_NOTE_NAME";
+    window.PianoDiagnostics?.add({
+      kind:"score-data",
+      message:err.message,
+      source:"js/app.js",
+      extra:{note:raw, accepted:"C4 / F#5 / Fs5 / Bb3"}
+    });
+    throw err;
+  }
+  return {
+    raw,
+    letter:m[1],
+    accidental:m[2] || "",
+    octave:Number(m[3])
+  };
+}
+
+const nameToMidi = note => {
+  const p = parseNoteName(note);
+  const base = {C:0,D:2,E:4,F:5,G:7,A:9,B:11}[p.letter];
+  const accidental = (p.accidental === "#" || p.accidental === "s") ? 1 : (p.accidental === "b" ? -1 : 0);
+  return (p.octave + 1) * 12 + base + accidental;
 };
-const fileName = n => n.replace("#","s") + ".wav";
+
+const fileName = n => String(n).replace("#","s") + ".wav";
 
 function diatonicStep(note){
-  const m = /^([A-G])([#b]?)(\d)$/.exec(note);
-  return Number(m[3])*7 + letterIndex[m[1]];
+  const p = parseNoteName(note);
+  // 升降記號不改變音符在五線譜上的字母位置。
+  return p.octave * 7 + letterIndex[p.letter];
 }
 const trebleBottom = TREBLE_TOP + STAFF_GAP*4; // E4
 const bassBottom = BASS_TOP + STAFF_GAP*4;     // G2
