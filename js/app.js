@@ -1,5 +1,5 @@
 
-const VERSION="6.2.9";
+const VERSION="6.3.2";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
@@ -125,7 +125,115 @@ document.addEventListener("DOMContentLoaded",async()=>{
     async function refreshQuality(){ if(!window.PianoAudio||!qualityStatus)return; const active=await PianoAudio.setProfile(quality?.value||"auto"); qualityStatus.textContent=active==="web-hifi"?"已啟用：網站內 Hi‑Fi 三角鋼琴":"目前使用：網站內示範鋼琴音源"; }
     if(quality){ quality.onchange=()=>refreshQuality().catch(err=>PianoDiagnostics?.add({kind:"audio-profile",message:err.message,stack:err.stack})); refreshQuality().catch(()=>{}); }
 
-    $("#photoInput").onchange=e=>{ const f=e.target.files?.[0]; if(!f)return; const img=$("#photoPreview"); img.src=URL.createObjectURL(f); img.style.display="block"; $("#importMsg").textContent="圖片已載入；OMR → MusicXML 尚未接入，因此不會拿舊歌譜假裝新歌曲。"; };
+
+
+    const imageScoreMap=new PianoImport.ImageScoreMap();
+    let importedImageScoreModel=null;
+
+    let importedMidiModel=null;
+    let importedElectronicScore=null;
+
+    const midiInput=$("#midiInput");
+    if(midiInput){
+      midiInput.onchange=async e=>{
+        const file=e.target.files?.[0];
+        if(!file)return;
+
+        try{
+          $("#midiStatus").textContent="解析中…";
+          const parsed=PianoImport.MidiParser.parse(await file.arrayBuffer());
+
+          importedMidiModel=PianoImport.MidiToScore.convert(parsed,{
+            title:file.name.replace(/\.(mid|midi)$/i,"")
+          });
+
+          importedElectronicScore=PianoImport.ElectronicScore.fromModel(importedMidiModel,{
+            source:`MIDI:${file.name}`
+          });
+
+          $("#midiStatus").textContent="轉換完成";
+          $("#midiEventCount").textContent=importedMidiModel.events.length;
+          $("#midiTotalBeats").textContent=importedMidiModel.totalBeats;
+          $("#midiBpm").textContent=importedMidiModel.bpm;
+          $("#useMidiScore").disabled=false;
+          $("#exportElectronicScore").disabled=false;
+        }catch(err){
+          $("#midiStatus").textContent="轉換失敗";
+          PianoDiagnostics?.add({kind:"midi-import",message:err?.message||String(err),stack:err?.stack||""});
+          window.__PIANO_BOOT_SHOW_ERROR__?.("MIDI 轉電子樂譜失敗",err?.stack||err?.message||String(err));
+        }
+      };
+    }
+
+    $("#useMidiScore").onclick=()=>{
+      if(!importedMidiModel)return;
+
+      importedMidiModel.displayMode="digital";
+      practice.setModel(importedMidiModel);
+      transport.setBpm(importedMidiModel.bpm);
+      syncModelUi(importedMidiModel);
+
+      $("#fullSheetLayer").hidden=true;
+      $("#scoreTrack").style.visibility="visible";
+      closeDrawer();
+    };
+
+    $("#exportElectronicScore").onclick=()=>{
+      if(!importedElectronicScore)return;
+      PianoImport.ElectronicScore.download(
+        importedElectronicScore,
+        `${importedElectronicScore.title||"electronic-score"}.json`
+      );
+    };
+
+    $("#photoInput").onchange=e=>{
+      const f=e.target.files?.[0];
+      if(!f)return;
+
+      const img=$("#photoPreview");
+      img.src=URL.createObjectURL(f);
+      img.style.display="block";
+
+      imageScoreMap.clear();
+      imageScoreMap.setMeta({
+        title:$("#importTitle")?.value.trim()||f.name.replace(/\.[^.]+$/,""),
+        bpm:Number($("#bpm")?.value)||60,
+        time:[4,4],
+        keySignature:"C",
+        source:`IMAGE:${f.name}`
+      });
+
+      importedImageScoreModel=null;
+      $("#imageScoreStatus").textContent="圖片已載入，等待 OMR/校對音符事件";
+      $("#imageScoreEventCount").textContent="0";
+      $("#useImageScore").disabled=true;
+      $("#exportImageScore").disabled=true;
+      $("#importMsg").textContent="圖片已載入。下一步是把每顆音符辨識成拍點與音名；未完成辨識前不會使用舊歌曲資料。";
+    };
+
+    $("#useImageScore").onclick=()=>{
+      if(!imageScoreMap.events.length)return;
+      importedImageScoreModel=imageScoreMap.toScoreModel();
+      importedImageScoreModel.displayMode="digital";
+      practice.setModel(importedImageScoreModel);
+      transport.setBpm(importedImageScoreModel.bpm);
+      syncModelUi(importedImageScoreModel);
+      $("#fullSheetLayer").hidden=true;
+      $("#scoreTrack").style.visibility="visible";
+      closeDrawer();
+    };
+
+    $("#exportImageScore").onclick=()=>{
+      if(!imageScoreMap.events.length)return;
+      const blob=new Blob([JSON.stringify(imageScoreMap.export(),null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;
+      a.download=(imageScoreMap.meta.title||"image-electronic-score")+".json";
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    };
+
     $("#saveImport").onclick=()=>{ $("#importMsg").textContent="目前只保存照片與歌曲名稱；OMR 尚未完成前，不會套用任何舊歌曲音符。"; };
 
     const errorBadge=$("#errorBadge"); if(errorBadge) errorBadge.onclick=()=>openDrawer("diagnostics"); window.openPianoDiagnostics=()=>openDrawer("diagnostics");
