@@ -1,5 +1,5 @@
 
-const VERSION="6.2.6";
+const VERSION="6.2.7";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded",async()=>{
     const renderer=new PianoScore.ScoreRenderer($("#scoreSvg"));
     const transport=new PianoPractice.Transport({bpm:firstModel.bpm,countInBeats:4,totalBeats:firstModel.totalBeats});
     const playhead=new PianoPractice.Playhead($("#playhead"),{readyPct:.045,targetPct:.36});
-    const scroller=new PianoPractice.ScoreScroller($("#scoreTrack"),renderer,playhead);
+    const pager=new PianoPractice.ScorePager({renderer,track:$("#scoreTrack"),beatsPerSystem:4});
     const metronome=new PianoPractice.Metronome(transport);
     const keyboard=new PianoPractice.Keyboard($("#keyboard"));
-    const practice=new PianoPractice.PracticeController({model:firstModel,renderer,transport,playhead,scroller,metronome,keyboard});
+    const practice=new PianoPractice.PracticeController({model:firstModel,renderer,transport,playhead,pager,metronome,keyboard});
     let activeSongId="lesson-01";
 
     function syncModelUi(model){

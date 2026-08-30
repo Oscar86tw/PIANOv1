@@ -370,3 +370,18 @@ html,body,.app{pointer-events:auto!important}
 .score-svg{
   height:100%!important;
 }
+
+/* =========================================================
+   V6.2.7 fixed score + moving playhead
+   ========================================================= */
+.score-track{
+  transform:none!important;
+  left:0!important;
+  transition:none!important;
+}
+.playhead{
+  transition:left .025s linear!important;
+}
+.score-wrap{
+  overflow:hidden!important;
+}

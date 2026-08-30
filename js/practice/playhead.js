@@ -2,15 +2,12 @@
 window.PianoPractice = window.PianoPractice || {};
 
 PianoPractice.Playhead = class Playhead {
-  constructor(element,{readyPct=.055,targetPct=.36}={}){
+  constructor(element,{readyPct=.06,startPct=.12,endPct=.88}={}){
     this.el=element;
     this.readyPct=readyPct;
-    this.targetPct=targetPct;
+    this.startPct=startPct;
+    this.endPct=endPct;
     this.container=element.parentElement;
-  }
-
-  xForPct(pct){
-    return this.container.clientWidth*pct;
   }
 
   reset(){
@@ -18,22 +15,20 @@ PianoPractice.Playhead = class Playhead {
     this.el.dataset.phase="ready";
   }
 
-  update({phase,progress=0}){
-    if(phase==="countin"){
-      // Move smoothly from left preparation position to the real judgment line.
-      const eased=progress<.5 ? 2*progress*progress : 1-Math.pow(-2*progress+2,2)/2;
-      const pct=this.readyPct+(this.targetPct-this.readyPct)*eased;
-      this.el.style.left=(pct*100)+"%";
-      this.el.dataset.phase="countin";
-      return;
-    }
-    if(phase==="playing"||phase==="paused"||phase==="complete"){
-      this.el.style.left=(this.targetPct*100)+"%";
-      this.el.dataset.phase="playing";
-      return;
-    }
-    this.reset();
+  startX(){ return this.container.clientWidth*this.startPct; }
+  endX(){ return this.container.clientWidth*this.endPct; }
+
+  updateCountIn(progress=0){
+    const p=Math.max(0,Math.min(1,progress));
+    const pct=this.readyPct+(this.startPct-this.readyPct)*p;
+    this.el.style.left=(pct*100)+"%";
+    this.el.dataset.phase="countin";
   }
 
-  targetX(){ return this.xForPct(this.targetPct); }
+  updatePlaying(systemProgress=0){
+    const p=Math.max(0,Math.min(1,systemProgress));
+    const pct=this.startPct+(this.endPct-this.startPct)*p;
+    this.el.style.left=(pct*100)+"%";
+    this.el.dataset.phase="playing";
+  }
 };

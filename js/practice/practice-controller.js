@@ -2,47 +2,55 @@
 window.PianoPractice = window.PianoPractice || {};
 
 PianoPractice.PracticeController = class PracticeController {
-  constructor({model,renderer,transport,playhead,scroller,metronome,keyboard}){
+  constructor({model,renderer,transport,playhead,pager,metronome,keyboard}){
     this.model=model;
     this.renderer=renderer;
     this.transport=transport;
     this.playhead=playhead;
-    this.scroller=scroller;
+    this.pager=pager;
     this.metronome=metronome;
     this.keyboard=keyboard;
     this.handMode="both";
-    this.lastBeat=-0.001;
+    this.lastBeat=-.001;
     this.bindTransport();
   }
 
   bindTransport(){
     this.transport.on("phase",({phase})=>{
-      this.playhead.update({phase,progress:phase==="playing"?1:0});
       if(phase==="idle"){
-        this.scroller.reset();
+        this.playhead.reset();
         this.keyboard.clear();
         this.lastBeat=-.001;
+        this.pager.systemIndex=0;
+        this.pager.renderSystem();
       }
       if(phase==="countin"){
         this.lastBeat=-.001;
+        this.pager.systemIndex=0;
+        this.pager.renderSystem();
       }
       if(phase==="playing"){
         this.lastBeat=-.001;
       }
+      if(phase==="paused"){
+        this.keyboard.clear();
+      }
     });
 
     this.transport.on("tick",t=>{
-      this.playhead.update(t);
-      this.scroller.update(t);
-
       if(t.phase==="countin"){
-        const next=Math.min(4,Math.max(1,Math.floor(t.countBeat)+1));
-        this.setStatus(`預備 ${next} / 4`);
+        this.playhead.updateCountIn(t.progress);
+        const next=Math.min(this.transport.countInBeats,Math.max(1,Math.floor(t.countBeat)+1));
+        this.setStatus(`預備 ${next} / ${this.transport.countInBeats}`);
         this.keyboard.clear();
         return;
       }
 
       if(t.phase==="playing"){
+        this.pager.ensureSystemForBeat(t.beat);
+        const systemProgress=this.pager.progressInSystem(t.beat);
+        this.playhead.updatePlaying(systemProgress);
+
         const eventsNow=this.model.eventsAtBeat(t.beat,.035,this.handMode);
         this.keyboard.showNotes(eventsNow.flatMap(e=>e.notes));
 
@@ -50,20 +58,26 @@ PianoPractice.PracticeController = class PracticeController {
         crossed.forEach(e=>{
           if(window.PianoAudio){
             e.notes.forEach(n=>PianoAudio.play(n,{velocity:88,volume:1}).catch(err=>{
-              window.PianoDiagnostics?.add({kind:"audio-play",message:err?.message||String(err),stack:err?.stack||""});
+              window.PianoDiagnostics?.add({
+                kind:"audio-play",
+                message:err?.message||String(err),
+                stack:err?.stack||""
+              });
             }));
           }
         });
 
         this.lastBeat=t.beat;
         const measure=Math.floor(t.beat/4)+1;
-        this.setStatus(`第 ${measure} 小節`);
+        const system=this.pager.systemForBeat(t.beat)+1;
+        this.setStatus(`第 ${measure} 小節 · 第 ${system}/${this.pager.totalSystems()} 排`);
         this.setProgress(Math.round(t.progress*100));
       }
     });
 
     this.transport.on("complete",()=>{
       this.keyboard.clear();
+      this.playhead.updatePlaying(1);
       this.setStatus("完成");
       this.setProgress(100);
       document.querySelector("#playBtn").textContent="▶";
@@ -71,21 +85,24 @@ PianoPractice.PracticeController = class PracticeController {
     });
   }
 
-  setStatus(text){ const e=document.querySelector("#beatStatus"); if(e)e.textContent=text; }
-  setProgress(v){ const e=document.querySelector("#progress"); if(e)e.textContent=`${v}%`; }
+  setStatus(text){
+    const e=document.querySelector("#beatStatus");
+    if(e)e.textContent=text;
+  }
+
+  setProgress(v){
+    const e=document.querySelector("#progress");
+    if(e)e.textContent=`${v}%`;
+  }
 
   render(){
-    const result=this.renderer.render(this.model,this.handMode);
-    this.scroller.setTimeline(result.timeline);
-    requestAnimationFrame(()=>{
-      this.scroller.reset();
-      this.playhead.reset();
-    });
+    this.pager.setModel(this.model,this.handMode);
+    requestAnimationFrame(()=>this.playhead.reset());
   }
 
   setHand(mode){
     this.handMode=mode;
-    this.render();
+    this.pager.setHand(mode);
   }
 
   setModel(model){
@@ -95,7 +112,8 @@ PianoPractice.PracticeController = class PracticeController {
     this.transport.totalBeats=model.totalBeats;
     this.lastBeat=-.001;
     this.keyboard.clear();
-    this.render();
+    this.pager.setModel(model,this.handMode);
+    this.playhead.reset();
     this.setStatus("準備");
     this.setProgress(0);
   }
@@ -113,7 +131,11 @@ PianoPractice.PracticeController = class PracticeController {
       await this.transport.prepare();
       await this.metronome.ensureAudio();
     }catch(err){
-      window.PianoDiagnostics?.add({kind:"practice-start",message:err?.message||String(err),stack:err?.stack||""});
+      window.PianoDiagnostics?.add({
+        kind:"practice-start",
+        message:err?.message||String(err),
+        stack:err?.stack||""
+      });
     }
 
     if(this.transport.phase==="playing"||this.transport.phase==="countin"){
@@ -122,23 +144,26 @@ PianoPractice.PracticeController = class PracticeController {
       document.querySelector("#practiceStart").textContent="繼續";
       return;
     }
+
     if(this.transport.phase==="paused"){
       this.transport.resume();
       document.querySelector("#playBtn").textContent="Ⅱ";
       document.querySelector("#practiceStart").textContent="暫停";
       return;
     }
+
     if(this.transport.phase==="complete") this.transport.stop();
 
-    this.scroller.reset();
+    this.pager.systemIndex=0;
+    this.pager.renderSystem();
     this.playhead.reset();
-    this.transport.start();
+    await this.transport.start();
     document.querySelector("#playBtn").textContent="Ⅱ";
     document.querySelector("#practiceStart").textContent="暫停";
   }
 
   pauseOnly(){
-    if(this.transport.phase==="playing" || this.transport.phase==="countin"){
+    if(this.transport.phase==="playing"||this.transport.phase==="countin"){
       this.transport.pause();
       this.keyboard.clear();
       document.querySelector("#playBtn").textContent="▶";
@@ -154,8 +179,9 @@ PianoPractice.PracticeController = class PracticeController {
 
   reset(){
     this.transport.stop();
+    this.pager.systemIndex=0;
+    this.pager.renderSystem();
     this.playhead.reset();
-    this.scroller.reset();
     this.keyboard.clear();
     document.querySelector("#playBtn").textContent="▶";
     document.querySelector("#practiceStart").textContent="開始練習";
