@@ -6,8 +6,8 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     this.svg=svg;
     this.NS="http://www.w3.org/2000/svg";
 
-    // Large learning score, but proportions follow normal printed notation.
-    this.STAFF_SPACE=40.8;        // V6.2.4: shrink staff 20%          // V6.2.2: ~1.5x V6.2.1
+    // V6.2.5 keeps V6.2.4 sizing, but fixes note-to-staff alignment.
+    this.STAFF_SPACE=40.8;
     this.HALF_SPACE=this.STAFF_SPACE/2;
 
     // Two independent 50% practice zones.
@@ -24,8 +24,11 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     this.BEAT_PX=225;
     this.CONTENT_START=340;
 
+    // Formal staff anchors:
+    // treble bottom line = E4, bass bottom line = G2
     this.E4=PianoCore.Note.diatonic("E4");
     this.G2=PianoCore.Note.diatonic("G2");
+
     this.lastTimeline=null;
   }
 
@@ -39,18 +42,28 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     return this.CONTENT_START+beat*this.BEAT_PX;
   }
 
+  staffTop(hand){ return hand==="R" ? this.TREBLE_TOP : this.BASS_TOP; }
+  staffBottom(hand){ return this.staffTop(hand)+this.STAFF_SPACE*4; }
+
+  snapToGrid(y){
+    // Every valid note center must fall exactly on a line or a space center.
+    // This removes visual drift from floating-point layout.
+    const unit = this.HALF_SPACE;
+    return Math.round(y / unit) * unit;
+  }
+
   noteY(note,hand){
     const step=PianoCore.Note.diatonic(note);
-    const top=hand==="R"?this.TREBLE_TOP:this.BASS_TOP;
-    const bottom=top+this.STAFF_SPACE*4;
+    const bottom=this.staffBottom(hand);
     const anchor=hand==="R"?this.E4:this.G2;
 
-    // Each letter-name step is exactly half a staff-space.
-    return bottom-(step-anchor)*this.HALF_SPACE;
+    // One diatonic step = one half-space.
+    const raw = bottom - (step-anchor)*this.HALF_SPACE;
+    return this.snapToGrid(raw);
   }
 
   staffCenter(hand){
-    return (hand==="R"?this.TREBLE_TOP:this.BASS_TOP)+this.STAFF_SPACE*2;
+    return this.staffTop(hand)+this.STAFF_SPACE*2;
   }
 
   stemDirection(y,hand){
@@ -63,7 +76,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
       const y=top+i*this.STAFF_SPACE;
       g.appendChild(this.el("line",{
         x1:28,x2:width-24,y1:y,y2:y,
-        stroke:"#252525","stroke-width":"1.15"
+        stroke:"#252525","stroke-width":"1.15","shape-rendering":"crispEdges"
       }));
     }
 
@@ -71,13 +84,13 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
       const x=this.xForBeat(beat);
       g.appendChild(this.el("line",{
         x1:x,x2:x,y1:top,y2:top+this.STAFF_SPACE*4,
-        stroke:"#333","stroke-width":beat===0?"1.5":"1"
+        stroke:"#333","stroke-width":beat===0?"1.5":"1","shape-rendering":"crispEdges"
       }));
     }
     this.svg.appendChild(g);
   }
 
-  drawClef(top,clef,label){
+  drawClef(top,clef){
     const c=this.el("text",{
       x:44,
       y:clef==="treble"?top+this.STAFF_SPACE*3.45:top+this.STAFF_SPACE*3.25,
@@ -90,8 +103,6 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
   }
 
   keySignatureY(hand,letter){
-    // Standard D major: F# / C# positions.
-    // Treble F5, C5. Bass F3, C3.
     const note=hand==="R" ? (letter==="F"?"F5":"C5") : (letter==="F"?"F3":"C3");
     return this.noteY(note,hand);
   }
@@ -130,16 +141,11 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
   }
 
   drawGrandStaff(width,model){
-    // Explicit upper/lower zones so the student never confuses hands.
-    this.svg.appendChild(this.el("rect",{
-      x:0,y:0,width,height:this.HALF_H,fill:"#fffdf7"
-    }));
-    this.svg.appendChild(this.el("rect",{
-      x:0,y:this.HALF_H,width,height:this.HALF_H,fill:"#fffaf2"
-    }));
+    this.svg.appendChild(this.el("rect",{x:0,y:0,width,height:this.HALF_H,fill:"#fffdf7"}));
+    this.svg.appendChild(this.el("rect",{x:0,y:this.HALF_H,width,height:this.HALF_H,fill:"#fffaf2"}));
     this.svg.appendChild(this.el("line",{
       x1:0,x2:width,y1:this.HALF_H,y2:this.HALF_H,
-      stroke:"#d8d2c7","stroke-width":"3"
+      stroke:"#d8d2c7","stroke-width":"3","shape-rendering":"crispEdges"
     }));
 
     const rh=this.el("text",{x:18,y:34,"font-size":"18","font-weight":"700",fill:"#666"});
@@ -151,8 +157,8 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
 
     this.drawStaffLines(width,this.TREBLE_TOP,model.totalBeats,model.time);
     this.drawStaffLines(width,this.BASS_TOP,model.totalBeats,model.time);
-    this.drawClef(this.TREBLE_TOP,"treble","右手");
-    this.drawClef(this.BASS_TOP,"bass","左手");
+    this.drawClef(this.TREBLE_TOP,"treble");
+    this.drawClef(this.BASS_TOP,"bass");
     this.drawKeyAndTime(this.TREBLE_TOP,"R",model.time,model.keySignature);
     this.drawKeyAndTime(this.BASS_TOP,"L",model.time,model.keySignature);
 
@@ -167,21 +173,21 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
   }
 
   drawLedger(x,y,hand){
-    const top=hand==="R"?this.TREBLE_TOP:this.BASS_TOP;
-    const bottom=top+this.STAFF_SPACE*4;
+    const top=this.staffTop(hand);
+    const bottom=this.staffBottom(hand);
 
-    if(y<top){
-      for(let ly=top-this.STAFF_SPACE;ly>=y-1;ly-=this.STAFF_SPACE){
+    if(y<top-this.HALF_SPACE*0.1){
+      for(let ly=top-this.STAFF_SPACE; ly>=y-1; ly-=this.STAFF_SPACE){
         this.svg.appendChild(this.el("line",{
-          x1:x-16,x2:x+16,y1:ly,y2:ly,stroke:"#222","stroke-width":"1.2"
+          x1:x-16,x2:x+16,y1:ly,y2:ly,stroke:"#222","stroke-width":"1.2","shape-rendering":"crispEdges"
         }));
       }
     }
 
-    if(y>bottom){
-      for(let ly=bottom+this.STAFF_SPACE;ly<=y+1;ly+=this.STAFF_SPACE){
+    if(y>bottom+this.HALF_SPACE*0.1){
+      for(let ly=bottom+this.STAFF_SPACE; ly<=y+1; ly+=this.STAFF_SPACE){
         this.svg.appendChild(this.el("line",{
-          x1:x-16,x2:x+16,y1:ly,y2:ly,stroke:"#222","stroke-width":"1.2"
+          x1:x-16,x2:x+16,y1:ly,y2:ly,stroke:"#222","stroke-width":"1.2","shape-rendering":"crispEdges"
         }));
       }
     }
@@ -190,17 +196,12 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
   shouldDrawAccidental(note,keySignature){
     const p=PianoCore.Note.parse(note);
     if(!p.accidental) return false;
-
-    // D major key signature already contains F# and C#.
-    if(keySignature==="D" && (p.accidental==="#"||p.accidental==="s") && ["F","C"].includes(p.letter)){
-      return false;
-    }
+    if(keySignature==="D" && (p.accidental==="#"||p.accidental==="s") && ["F","C"].includes(p.letter)) return false;
     return true;
   }
 
   drawAccidental(note,x,y,keySignature){
     if(!this.shouldDrawAccidental(note,keySignature)) return;
-
     const p=PianoCore.Note.parse(note);
     const a=this.el("text",{
       x:x-27,y:y+9,
@@ -228,7 +229,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     const stemX=x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
     const startY=dir==="up"?Math.max(...ys):Math.min(...ys);
     this.svg.appendChild(this.el("line",{
-      x1:stemX,x2:stemX,y1:startY,y2:endY,stroke:"#111","stroke-width":"1.8"
+      x1:stemX,x2:stemX,y1:startY,y2:endY,stroke:"#111","stroke-width":"1.8","shape-rendering":"crispEdges"
     }));
     return stemX;
   }
@@ -251,43 +252,24 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
 
   beamGroups(events){
     const groups=[];
-
     ["R","L"].forEach(hand=>{
-      const list=events
-        .filter(e=>e.hand===hand && e.duration<=.5)
-        .sort((a,b)=>a.beat-b.beat);
-
+      const list=events.filter(e=>e.hand===hand && e.duration<=.5).sort((a,b)=>a.beat-b.beat);
       let current=[];
-
-      const flush=()=>{
-        if(current.length>1) groups.push(current);
-        current=[];
-      };
+      const flush=()=>{ if(current.length>1) groups.push(current); current=[]; };
 
       list.forEach(e=>{
-        if(!current.length){
-          current=[e];
-          return;
-        }
-
+        if(!current.length){ current=[e]; return; }
         const prev=current[current.length-1];
         const contiguous=Math.abs(e.beat-(prev.beat+prev.duration))<.001;
-
-        // Group by one quarter-note beat for 4/4.
         const groupBase=Math.floor(current[0].beat);
         const sameBeat=Math.floor(e.beat)===groupBase;
 
-        if(contiguous && sameBeat){
-          current.push(e);
-        }else{
-          flush();
-          current=[e];
-        }
+        if(contiguous && sameBeat) current.push(e);
+        else { flush(); current=[e]; }
       });
 
       flush();
     });
-
     return groups;
   }
 
@@ -299,7 +281,6 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     const endY=edge+(dir==="up"?-this.STEM:this.STEM);
     this.drawStem(x,ys,dir,endY);
 
-    // Isolated eighth / sixteenth flag.
     if(event.duration<=.5){
       const stemX=x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
       const flag=this.el("path",{
@@ -316,51 +297,36 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
     const items=group.map(e=>rendered.get(e.id)).filter(Boolean);
     if(items.length<2) return;
 
-    const hand=group[0].hand;
-    const avgY=items.reduce((s,i)=>s+i.avg,0)/items.length;
-
-    // Practice display normalization:
-    // grouped eighth/sixteenth notes follow the supplied Canon reference:
-    // stems go upward and the beam stays above the noteheads.
-    // (Standard engraving may also use downward beams in other musical contexts.)
     const dir="up";
-
-    const x1=items[0].x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
-    const x2=items[items.length-1].x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
+    const x1=items[0].x+(this.NOTE_RX-1);
+    const x2=items[items.length-1].x+(this.NOTE_RX-1);
 
     const desired=items.map(i=>{
-      const edge=dir==="up"?Math.min(...i.ys):Math.max(...i.ys);
-      return edge+(dir==="up"?-this.STEM:this.STEM);
+      const edge=Math.min(...i.ys);
+      return edge-this.STEM;
     });
 
-    const y1=desired[0];
+    const y1=this.snapToGrid(desired[0]);
     const rawSlope=(desired[desired.length-1]-desired[0])/(x2-x1||1);
-
-    // Printed notation uses restrained beam angles.
     const slope=Math.max(-0.035,Math.min(0.035,rawSlope));
-    const y2=y1+slope*(x2-x1);
+    const y2=this.snapToGrid(y1+slope*(x2-x1));
 
     items.forEach(i=>{
-      const stemX=i.x+(dir==="up"?this.NOTE_RX-1:-(this.NOTE_RX-1));
-      const beamY=y1+slope*(stemX-x1);
+      const stemX=i.x+(this.NOTE_RX-1);
+      const beamY=this.snapToGrid(y1+slope*(stemX-x1));
       this.drawStem(i.x,i.ys,dir,beamY);
     });
 
     const t=this.BEAM_THICK;
     this.svg.appendChild(this.el("path",{
-      d:dir==="up"
-        ? `M${x1} ${y1} L${x2} ${y2} L${x2} ${y2+t} L${x1} ${y1+t} Z`
-        : `M${x1} ${y1} L${x2} ${y2} L${x2} ${y2-t} L${x1} ${y1-t} Z`,
+      d:`M${x1} ${y1} L${x2} ${y2} L${x2} ${y2+t} L${x1} ${y1+t} Z`,
       fill:"#111"
     }));
 
-    // Sixteenth notes get a second beam.
     if(group.some(e=>e.duration<=.25)){
-      const off=dir==="up"?13:-13;
+      const off=13;
       this.svg.appendChild(this.el("path",{
-        d:dir==="up"
-          ? `M${x1} ${y1+off} L${x2} ${y2+off} L${x2} ${y2+off+t} L${x1} ${y1+off+t} Z`
-          : `M${x1} ${y1+off} L${x2} ${y2+off} L${x2} ${y2+off-t} L${x1} ${y1+off-t} Z`,
+        d:`M${x1} ${y1+off} L${x2} ${y2+off} L${x2} ${y2+off+t} L${x1} ${y1+off+t} Z`,
         fill:"#111"
       }));
     }
@@ -368,11 +334,9 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
 
   buildTimeline(model){
     const anchors=[];
-
-    for(let beat=0;beat<=model.totalBeats;beat+=.5){
+    for(let beat=0; beat<=model.totalBeats; beat+=.5){
       anchors.push({beat,x:this.xForBeat(beat)});
     }
-
     this.lastTimeline=new PianoScore.TimelineMap(anchors);
     return this.lastTimeline;
   }
@@ -389,14 +353,10 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
 
     const events=model.eventsForHand(handMode);
     const rendered=new Map();
-
-    events.forEach(event=>{
-      rendered.set(event.id,this.renderEventHead(event,model));
-    });
+    events.forEach(event=>rendered.set(event.id,this.renderEventHead(event,model)));
 
     const groups=this.beamGroups(events);
     const groupedIds=new Set(groups.flat().map(e=>e.id));
-
     groups.forEach(group=>this.drawBeam(group,rendered));
 
     events.forEach(event=>{
@@ -404,18 +364,7 @@ PianoScore.ScoreRenderer = class ScoreRenderer {
       this.drawStandaloneStem(rendered.get(event.id));
     });
 
-    if(handMode==="right"){
-      // Do not remove the left stave: keep orientation, but de-emphasize it.
-      this.svg.querySelectorAll("[data-left-muted]").forEach(()=>{});
-    }
-
     const timeline=this.buildTimeline(model);
-
-    return {
-      width,
-      timeline,
-      contentStart:this.CONTENT_START,
-      canvasHeight:this.CANVAS_H
-    };
+    return { width, timeline, contentStart:this.CONTENT_START, canvasHeight:this.CANVAS_H };
   }
 };
