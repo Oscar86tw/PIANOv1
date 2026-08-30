@@ -34,7 +34,7 @@ window.PianoDiagnostics = (() => {
     const item = {
       id: Date.now()+"-"+Math.random().toString(16).slice(2),
       time: new Date().toISOString(),
-      version: "6.1.1",
+      version: "6.1.2",
       kind, category, title, advice,
       message: String(message||"未知錯誤"),
       source: source||"",
@@ -48,7 +48,56 @@ window.PianoDiagnostics = (() => {
     };
     const logs=load(); logs.unshift(item); save(logs); emit();
     showBadge();
+    popup(item);
     return item;
+  }
+
+
+  let popupTimer = 0;
+
+  function ensurePopup(){
+    let p=document.getElementById("globalErrorPopup");
+    if(p) return p;
+    p=document.createElement("div");
+    p.id="globalErrorPopup";
+    p.className="error-popup";
+    p.innerHTML=`
+      <div class="error-popup-head">
+        <div>
+          <div class="error-popup-title" id="globalErrorPopupTitle">網站發生錯誤</div>
+          <div class="error-popup-msg" id="globalErrorPopupMsg"></div>
+          <div class="error-popup-meta" id="globalErrorPopupMeta"></div>
+        </div>
+        <button class="error-popup-close" id="globalErrorPopupClose">✕</button>
+      </div>
+      <div class="error-popup-actions">
+        <button class="primary" id="globalErrorOpenReport">查看錯誤</button>
+        <button id="globalErrorCopy">複製錯誤報告</button>
+      </div>`;
+    document.body.appendChild(p);
+    p.querySelector("#globalErrorPopupClose").onclick=()=>p.classList.remove("on");
+    p.querySelector("#globalErrorOpenReport").onclick=()=>{
+      p.classList.remove("on");
+      if(typeof window.openPianoDiagnostics==="function") window.openPianoDiagnostics();
+      else document.getElementById("errorBadge")?.click();
+    };
+    p.querySelector("#globalErrorCopy").onclick=async()=>{
+      await copyReport();
+      p.querySelector("#globalErrorCopy").textContent="已複製 ✓";
+    };
+    return p;
+  }
+
+  function popup(item){
+    if(!document.body) return;
+    const p=ensurePopup();
+    p.querySelector("#globalErrorPopupTitle").textContent=`${item.title}（${item.category}）`;
+    p.querySelector("#globalErrorPopupMsg").textContent=item.message;
+    p.querySelector("#globalErrorPopupMeta").textContent=
+      `V${item.version} · ${item.source ? item.source.split("/").pop() : "頁面"}${item.line ? ":"+item.line : ""}`;
+    p.classList.add("on");
+    clearTimeout(popupTimer);
+    popupTimer=setTimeout(()=>p.classList.remove("on"),12000);
   }
 
   function showBadge(){
@@ -62,7 +111,7 @@ window.PianoDiagnostics = (() => {
   function clear(){ save([]); emit(); showBadge(); }
 
   function copyReport(){
-    const text = JSON.stringify({app:"PIANO LEARNING",version:"6.1.1",generated:new Date().toISOString(),logs:load()},null,2);
+    const text = JSON.stringify({app:"PIANO LEARNING",version:"6.1.2",generated:new Date().toISOString(),logs:load()},null,2);
     if(navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
     const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();
     return Promise.resolve();
