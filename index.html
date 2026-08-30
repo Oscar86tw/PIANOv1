@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>PIANO LEARNING 6.2.8｜經典教材型練習</title>
+  <title>PIANO LEARNING 6.2.9｜經典教材型練習</title>
   <link rel="stylesheet" href="css/app.css">
 
 <style id="criticalBootStyle">
@@ -37,13 +37,17 @@
       <b id="songTitle">Lesson Practice 01</b>
       <small id="micTitle">正規左右手橫向練習</small>
     </div>
-    <div class="version">6.2.8</div>
+    <div class="version">6.2.9</div>
     <button class="icon error-badge" id="errorBadge" title="錯誤診斷">✓</button>
     <button class="icon" id="micBtn" aria-label="麥克風">🎤</button>
   </header>
 
   <main class="practice">
     <section class="score-wrap" id="scoreWrap">
+      <div class="full-sheet-layer" id="fullSheetLayer" hidden>
+        <img id="fullSheetImage" alt="Canon in D 完整樂譜">
+        <div class="sheet-source-badge" id="sheetSourceBadge">已核對完整 1 頁樂譜 · Sheet ID 38031</div>
+      </div>
       <div class="score-track" id="scoreTrack">
         <svg id="scoreSvg" class="score-svg" aria-label="正規鋼琴五線譜"></svg>
       </div>
@@ -73,7 +77,7 @@
 
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <b>PIANO LEARNING <small>6.2.8</small></b>
+    <b>PIANO LEARNING <small>6.2.9</small></b>
     <button id="closeDrawer">✕</button>
   </div>
 
@@ -182,7 +186,7 @@
         <button class="primary" id="practiceStart">開始練習</button>
         <button id="practiceReset">重新開始</button>
       </div>
-      <p class="muted">整首電子樂譜固定顯示，不再分段切換。預備四拍後，紅線依照目前 BPM 與實際拍點，由左往右等速移動。</p>
+      <p class="muted">Canon in D 顯示經網路核對的完整 1 頁樂譜；其他歌曲維持電子譜。紅線與拍子仍使用同一個 Master Clock。</p>
     </div>
 
     <div class="section">
@@ -208,7 +212,7 @@
 
 <script>
 (function(){
-  const VERSION="6.2.8";
+  const VERSION="6.2.9";
   let lastError="";
   function modal(){
     return document.getElementById("bootErrorModal");

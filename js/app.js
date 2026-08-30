@@ -1,5 +1,5 @@
 
-const VERSION="6.2.8";
+const VERSION="6.2.9";
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
 
@@ -23,7 +23,29 @@ document.addEventListener("DOMContentLoaded",async()=>{
 
     function syncModelUi(model){
       $("#songTitle").textContent=model.title;
-      $("#bpm").value=model.bpm; $("#bpmLabel").textContent=model.bpm; $("#bpmStatus").textContent="♩ "+model.bpm;
+      $("#bpm").value=model.bpm;
+      $("#bpmLabel").textContent=model.bpm;
+      $("#bpmStatus").textContent="♩ "+model.bpm;
+
+      const fullLayer=$("#fullSheetLayer");
+      const fullImg=$("#fullSheetImage");
+      const scoreTrack=$("#scoreTrack");
+      const badge=$("#sheetSourceBadge");
+
+      if(model.displayMode==="full-sheet-image" && model.sheetImageUrl){
+        if(fullLayer) fullLayer.hidden=false;
+        if(scoreTrack) scoreTrack.style.visibility="hidden";
+        if(fullImg){
+          fullImg.src=model.sheetImageUrl;
+          fullImg.alt=model.sheetTitle||model.title;
+        }
+        if(badge){
+          badge.textContent=`已核對完整 ${model.sheetPages||1} 頁樂譜 · Sheet ID ${model.sheetId||""}`;
+        }
+      }else{
+        if(fullLayer) fullLayer.hidden=true;
+        if(scoreTrack) scoreTrack.style.visibility="visible";
+      }
     }
 
     async function selectSong(id){

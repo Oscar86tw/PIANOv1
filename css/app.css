@@ -402,3 +402,46 @@ html,body,.app{pointer-events:auto!important}
   transition:none!important; /* beat position is already updated every animation frame */
   will-change:left;
 }
+
+/* =========================================================
+   V6.2.9 verified whole-sheet display
+   ========================================================= */
+.full-sheet-layer{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#fff;
+  pointer-events:none;
+}
+.full-sheet-layer[hidden]{
+  display:none!important;
+}
+.full-sheet-layer img{
+  width:auto;
+  height:100%;
+  max-width:100%;
+  object-fit:contain;
+  display:block;
+}
+.sheet-source-badge{
+  position:absolute;
+  right:12px;
+  top:10px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(0,0,0,.12);
+  font-size:11px;
+  color:#555;
+  backdrop-filter:blur(4px);
+}
+.score-track{
+  z-index:2;
+}
+.playhead{
+  z-index:6!important;
+}

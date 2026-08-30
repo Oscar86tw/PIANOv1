@@ -18,7 +18,16 @@ PianoScore.SongLoader = class SongLoader {
     if(!r.ok) throw new Error(`歌曲檔案載入失敗：${meta.file} (${r.status})`);
     const data=await r.json();
     const model=new PianoScore.ScoreModel(data);
-    model.id=data.id||id; model.composer=data.composer||meta.composer||""; model.category=data.category||meta.category||"";
+    model.id=data.id||id;
+    model.composer=data.composer||meta.composer||"";
+    model.category=data.category||meta.category||"";
+    model.displayMode=data.displayMode||"digital";
+    model.sheetId=data.sheetId||"";
+    model.sheetTitle=data.sheetTitle||"";
+    model.sheetImageUrl=data.sheetImageUrl||"";
+    model.sheetSourceUrl=data.sheetSourceUrl||"";
+    model.sheetPages=data.sheetPages||0;
+    model.sheetVerified=Boolean(data.sheetVerified);
     this.cache.set(id,model);
     return model;
   }

@@ -93,7 +93,18 @@ PianoPractice.PracticeController = class PracticeController {
 
   render(){
     const result=this.renderer.render(this.model,this.handMode);
-    this.playhead.configureFromLayout(result);
+
+    // Full-sheet image mode uses the complete page as the visible score.
+    // Keep digital render in memory for note/audio events, but hide it visually.
+    if(this.model.displayMode==="full-sheet-image"){
+      this.playhead.configureFromLayout({
+        contentStart: result.width*0.09,
+        endX: result.width*0.93,
+        width: result.width
+      });
+    }else{
+      this.playhead.configureFromLayout(result);
+    }
   }
 
   setHand(mode){
