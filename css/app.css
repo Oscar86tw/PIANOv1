@@ -169,3 +169,84 @@ button,input,select{font:inherit}
 .diag-item .diag-time{font-size:10px;color:#888;white-space:nowrap}
 .diag-item code{display:block;margin-top:6px;padding:7px;background:#f6f6f6;border-radius:8px;font-size:11px;white-space:pre-wrap;word-break:break-word}
 .diag-advice{font-size:11px;color:#6d6d6d;margin-top:6px;line-height:1.45}
+
+
+/* =========================================================
+   V6.1.3 FINAL OVERRIDES
+   1) no invisible layer may block controls
+   2) staff/note visual size increased again
+   3) error popup is always above the app
+   ========================================================= */
+
+html,body,.app{pointer-events:auto!important}
+
+.score-wrap{
+  flex:1 1 auto!important;
+  min-height:520px!important;
+  overflow:hidden!important;
+}
+
+.score-track,
+.score-svg,
+.playhead{
+  pointer-events:none!important;
+}
+
+.controls,
+.topbar,
+.keyboard,
+.drawer{
+  pointer-events:auto!important;
+}
+
+.drawer-mask{
+  display:block!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+  transition:opacity .15s ease, visibility 0s linear .15s;
+}
+.drawer-mask.on{
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  transition:opacity .15s ease;
+}
+
+.ready-overlay{
+  display:grid!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+.ready-overlay.show{
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
+}
+
+/* Ensure controls always remain clickable over any score element. */
+.topbar{position:relative!important;z-index:500!important}
+.controls{position:relative!important;z-index:400!important}
+.keyboard{position:relative!important;z-index:350!important}
+.drawer{z-index:1200!important}
+.drawer-mask{z-index:1100!important}
+
+.error-popup{
+  z-index:20000!important;
+  pointer-events:none!important;
+}
+.error-popup.on{
+  pointer-events:auto!important;
+}
+
+/* Larger keyboard is kept secondary to the much larger staff. */
+.keyboard{
+  height:165px!important;
+  min-height:145px!important;
+}
+
+@media(max-width:700px){
+  .score-wrap{min-height:460px!important}
+  .keyboard{height:150px!important;min-height:135px!important}
+}

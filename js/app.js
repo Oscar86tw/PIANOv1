@@ -1,5 +1,5 @@
 
-const VERSION = "6.1.2";
+const VERSION = "6.1.3";
 const state = {
   bpm: 60,
   hand: "both",
@@ -12,7 +12,7 @@ const state = {
   currentBeat: 0,
   startAt: 0,
   songBeats: 16,
-  beatPx: 210,
+  beatPx: 260,
   baseX: 0,
   anim: 0,
   audioCtx: null,
@@ -52,10 +52,10 @@ const SONG_EVENTS = [
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const NS = "http://www.w3.org/2000/svg";
-const HALF_SPACE = 20;        // V6.1.2: note step = half a staff space
-const STAFF_GAP = 40;         // V6.1.2: line spacing roughly 2x previous version
-const TREBLE_TOP = 78;
-const BASS_TOP = 340;
+const HALF_SPACE = 40;        // one diatonic step = half staff-space
+const STAFF_GAP = 80;         // V6.1.3: another ~2x visual increase
+const TREBLE_TOP = 70;
+const BASS_TOP = 500;
 
 const letterIndex = {C:0,D:1,E:2,F:3,G:4,A:5,B:6};
 const nameToMidi = n => {
@@ -76,15 +76,14 @@ const E4 = diatonicStep("E4");
 const G2 = diatonicStep("G2");
 
 function noteY(note, hand){
-  // Canonical piano notation anchors:
-  // Treble bottom line = E4, bass bottom line = G2.
-  // Every diatonic step is exactly one half-space, so note heads always sit
-  // on a staff line or in the center of a staff space.
+  // Formal staff placement:
+  // Treble bottom line = E4.
+  // Bass bottom line = G2.
+  // Each next letter name moves exactly HALF_SPACE vertically.
   const step = diatonicStep(note);
-  const y = hand === "R"
-    ? trebleBottom - (step - E4) * HALF_SPACE
-    : bassBottom - (step - G2) * HALF_SPACE;
-  return Math.round(y * 2) / 2;
+  const anchorStep = hand === "R" ? E4 : G2;
+  const anchorY = hand === "R" ? trebleBottom : bassBottom;
+  return anchorY - (step - anchorStep) * HALF_SPACE;
 }
 function staffCenterY(hand){
   return hand === "R" ? (TREBLE_TOP + STAFF_GAP*2) : (BASS_TOP + STAFF_GAP*2);
@@ -106,15 +105,15 @@ function drawGrandStaff(svg, width){
       g.appendChild(el("line", {x1: 36, x2: width-24, y1: top + i*STAFF_GAP, y2: top + i*STAFF_GAP, stroke:"#262626", "stroke-width":"1.2"}));
     }
     for(let b=0; b<=state.songBeats; b+=4){
-      const x = 250 + b*state.beatPx;
+      const x = 330 + b*state.beatPx;
       g.appendChild(el("line", {x1:x,x2:x,y1:top,y2:top+STAFF_GAP*4,stroke:"#333","stroke-width": b===0? "1.4":"1.2"}));
     }
-    const clefText = el("text", {x:50, y: clef==="treble" ? top + 98 : top + 96, "font-size": clef==="treble" ? 126 : 98, "font-family":"serif", fill:"#111"});
+    const clefText = el("text", {x:50, y: clef==="treble" ? top + 178 : top + 172, "font-size": clef==="treble" ? 190 : 150, "font-family":"serif", fill:"#111"});
     clefText.textContent = clef==="treble" ? "𝄞" : "𝄢";
     g.appendChild(clefText);
 
-    const time1 = el("text", {x:148, y:top + 58, "font-size":"46", "font-weight":"700", "font-family":"Georgia", fill:"#111"});
-    const time2 = el("text", {x:148, y:top + 112, "font-size":"46", "font-weight":"700", "font-family":"Georgia", fill:"#111"});
+    const time1 = el("text", {x:210, y:top + 112, "font-size":"68", "font-weight":"700", "font-family":"Georgia", fill:"#111"});
+    const time2 = el("text", {x:210, y:top + 205, "font-size":"68", "font-weight":"700", "font-family":"Georgia", fill:"#111"});
     time1.textContent = "4"; time2.textContent = "4";
     g.appendChild(time1); g.appendChild(time2);
 
@@ -132,7 +131,7 @@ function drawGrandStaff(svg, width){
        C 14 ${TREBLE_TOP+28}, 14 ${TREBLE_TOP+80}, 38 ${TREBLE_TOP+STAFF_GAP*4}
        L 38 ${BASS_TOP}
        C 14 ${BASS_TOP+28}, 14 ${BASS_TOP+92}, 38 ${BASS_TOP+STAFF_GAP*4}`,
-    fill:"none", stroke:"#333", "stroke-width":"3"
+    fill:"none", stroke:"#333", "stroke-width":"4"
   });
   svg.appendChild(brace);
 }
@@ -158,18 +157,18 @@ function drawSingleNote(svg, x, note, duration, hand, color="#111"){
   drawLedger(svg, x, y, hand);
   const dir = stemDirection(y, hand);
   const g = el("g");
-  const head = el("ellipse", {cx:x, cy:y, rx:14, ry:9, fill:color, transform:`rotate(-18 ${x} ${y})`});
+  const head = el("ellipse", {cx:x, cy:y, rx:22, ry:14, fill:color, transform:`rotate(-18 ${x} ${y})`});
   g.appendChild(head);
 
   let stemX, stemY2;
   if(duration < 4){
     if(dir === "up"){
       stemX = x + 8;
-      stemY2 = y - 64;
+      stemY2 = y - 112;
       g.appendChild(el("line", {x1:stemX, y1:y, x2:stemX, y2:stemY2, stroke:color, "stroke-width":"2"}));
     }else{
       stemX = x - 8;
-      stemY2 = y + 64;
+      stemY2 = y + 112;
       g.appendChild(el("line", {x1:stemX, y1:y, x2:stemX, y2:stemY2, stroke:color, "stroke-width":"2"}));
     }
   }
@@ -194,7 +193,7 @@ function drawBeam(svg, group){
   const x2 = group[group.length-1].stemX;
   const y1 = group[0].stemY2;
   const y2 = group[group.length-1].stemY2;
-  const thickness = 12;
+  const thickness = 18;
 
   const beam = el("path", {
     d: dir === "up"
@@ -216,8 +215,8 @@ function filteredEvents(){
 function renderScore(){
   const svg = $("#scoreSvg");
   svg.innerHTML = "";
-  const width = 620 + state.songBeats * state.beatPx;
-  svg.setAttribute("viewBox", `0 0 ${width} 650`);
+  const width = 760 + state.songBeats * state.beatPx;
+  svg.setAttribute("viewBox", `0 0 ${width} 900`);
   svg.style.width = width + "px";
   $("#scoreTrack").style.width = width + "px";
 
@@ -225,7 +224,7 @@ function renderScore(){
 
   const drawnByEvent = new Map();
   filteredEvents().forEach(ev => {
-    const x = 250 + ev.b * state.beatPx;
+    const x = 330 + ev.b * state.beatPx;
     const color = (Math.round(ev.b*2) % 8 === 0) ? "#111" : "#111";
     const notes = ev.n.length > 1
       ? drawChord(svg, x, ev.n, ev.d, ev.h, color)
@@ -262,10 +261,10 @@ function renderScore(){
         item.dir = dir;
         if(dir === "up"){
           item.stemX = item.x + 8;
-          item.stemY2 = item.y - 64;
+          item.stemY2 = item.y - 112;
         }else{
           item.stemX = item.x - 8;
-          item.stemY2 = item.y + 64;
+          item.stemY2 = item.y + 112;
         }
       });
       // overlay fresh stems to ensure visual consistency
@@ -298,7 +297,7 @@ function applyHandFocus(){
 function setInitialOffset(){
   const wrap = $("#scoreWrap");
   const lineX = wrap.clientWidth * (window.innerWidth <= 700 ? 0.35 : 0.36);
-  state.baseX = lineX - 250;
+  state.baseX = lineX - 330;
   updateTrack(0);
 }
 function updateTrack(beat){
@@ -642,5 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.querySelector("#clearErrorReport")?.addEventListener("click",()=>PianoDiagnostics.clear());
   }
+  window.__PIANO_APP_READY__ = true;
+  document.dispatchEvent(new CustomEvent("piano-app-ready"));
   window.addEventListener("resize", setInitialOffset);
 });
